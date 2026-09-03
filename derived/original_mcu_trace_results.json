@@ -1,0 +1,33 @@
+[
+  {
+    "name": "startup",
+    "events": [
+      "0000: LJMP 0766",
+      "0766: clears IRAM; 076c: clears XRAM",
+      "077d: LJMP 07bb; table terminal at 0780: LJMP 0a3b",
+      "0a3b: calls ... 0cdd, 0eed, 005e, 0f84 in this order",
+      "0eed: CLR bit 96 (P1.6) before entering the main loop"
+    ],
+    "conclusion": "After reset initialization, P1.6 is low; the IRQ-enable state is independent."
+  },
+  {
+    "name": "command_21_count_zero",
+    "events": [
+      "count byte 00: status byte 3c becomes 00 (busy), no reply",
+      "next byte: count byte 39 is latched as 00",
+      "next byte: low XRAM start address is latched",
+      "each following byte: MOVX @DPTR,A; DJNZ 39,0692",
+      "DJNZ from 00 takes 256 store iterations; final fall-through sends SBUF=01 and state=01"
+    ],
+    "conclusion": "Stock 0x21,count=0 is a 256-byte XRAM write, not a reject; a truncated stream stays busy."
+  },
+  {
+    "name": "reply_tb8",
+    "events": [
+      "0b95: CLR TB8",
+      "no SETB TB8 opcode exists in the exact image",
+      "reply handlers write SBUF while TB8 remains clear"
+    ],
+    "conclusion": "Every modeled stock reply has ninth bit TB8=0."
+  }
+]

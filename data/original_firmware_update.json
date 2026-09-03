@@ -1,0 +1,52 @@
+{
+  "schema": "3441x-original-front-panel-update-v1",
+  "status": "DIRECT_STATIC",
+  "scope": "original_front_panel_only",
+  "firmware_image": {
+    "length": 4162,
+    "sha256": "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd",
+    "metadata_offset": "0x1000",
+    "metadata_hex": "000960001e010000000000000000",
+    "revision_offset": "0x1000..0x1001",
+    "revision": "0x0009",
+    "redistributed": false
+  },
+  "ppc_embeddings": [
+    {"model":"34410A","app_sha256":"9d05d676bf87d5109f75150935d6a95d8422ce4ceec2e768f5538caba9d02c6b","file_offset":"0x007A3EDF","mapped_address":"0x007B3EDF","slice_identical":true},
+    {"model":"34411A","app_sha256":"435633c24c33b546bf7e708392a751719fc41ed58d9ab8cf9643d559748f8654","file_offset":"0x007A449F","mapped_address":"0x007B449F","slice_identical":true}
+  ],
+  "rom_isp_calls_in_panel_image": [
+    {"code_offset":"0x0C14","target":"0xFF03","a":"0x02","r5":"0x01","r7":"0x03"},
+    {"code_offset":"0x0C21","target":"0xFF03","a":"0x02","r5":"0x63","r7":"0x00"}
+  ],
+  "wire": {
+    "baud": 7200,
+    "uart_mode": "DOWN",
+    "uart_ioctl": "0x5004",
+    "record_grammar": ":LLAAAATT[DD...]CC",
+    "checksum": "twos_complement_low_byte_of_sum",
+    "write_reply": "exact_echo + .\\r\\n",
+    "read_reply": "exact_echo + HH + .\\r\\n",
+    "autobaud_tx": "0x55",
+    "autobaud_rx": ["0x55", "0x75"]
+  },
+  "records": [
+    {"operation":"program_data","type":"0x00","address":"target","data":"1..32 bytes in stock PPC flow"},
+    {"operation":"program_uconfig","type":"0x02","address":"0x0000","data":"00 value"},
+    {"operation":"program_boot_vector","type":"0x02","address":"0x0000","data":"02 value"},
+    {"operation":"program_status","type":"0x02","address":"0x0000","data":"03 value"},
+    {"operation":"program_security_n","type":"0x02","address":"0x0000","data":"08+N value; N=0..7"},
+    {"operation":"read_uconfig","type":"0x03","address":"0x0000","data":"00"},
+    {"operation":"read_boot_vector","type":"0x03","address":"0x0000","data":"02"},
+    {"operation":"read_status","type":"0x03","address":"0x0000","data":"03"},
+    {"operation":"read_security_n","type":"0x03","address":"0x0000","data":"08+N; N=0..7"},
+    {"operation":"read_manufacturer_id","type":"0x03","address":"0x0000","data":"10"},
+    {"operation":"read_device_id_1","type":"0x03","address":"0x0000","data":"11"},
+    {"operation":"read_device_id_2","type":"0x03","address":"0x0000","data":"12"},
+    {"operation":"erase_page","type":"0x04","address":"0x0000","data":"00 addr_hi addr_lo"},
+    {"operation":"erase_sector","type":"0x04","address":"0x0000","data":"01 addr_hi addr_lo"}
+  ],
+  "data_read_generator": "stub_returns_zero",
+  "bench_execution": false,
+  "internal_mcu_rom_bytes_redistributed": false
+}

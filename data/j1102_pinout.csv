@@ -1,0 +1,14 @@
+pin,net,class,status,notes
+1,DCOM,common,SCHEMATIC_CONFIRMED,digital common
+2,FILP,vfd_power,SCHEMATIC_CONFIRMED,not 3.3V logic
+3,FILN,vfd_power,SCHEMATIC_CONFIRMED,not 3.3V logic
+4,+3.3V_ER,logic_power,SCHEMATIC_CONFIRMED,nominal 3.3V domain
+5,+12V_UNREG,power,SCHEMATIC_CONFIRMED,not 3.3V logic
+6,FP_SIN,logic,SCHEMATIC_CONFIRMED,nominal +3.3V_ER domain
+7,DCOM,common,SCHEMATIC_CONFIRMED,digital common
+8,FP_SOUT,logic,SCHEMATIC_CONFIRMED,nominal +3.3V_ER domain
+9,PWR_FAIL*,logic,SCHEMATIC_CONFIRMED,active-low name; bench polarity open
+10,FP_SRQ*,logic,SCHEMATIC_CONFIRMED,active-low event ready
+11,FP_RST*,logic,SCHEMATIC_CONFIRMED,active-low reset
+12,DCOM,common,SCHEMATIC_CONFIRMED,digital common
+

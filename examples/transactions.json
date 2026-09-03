@@ -1,0 +1,12 @@
+{
+  "schema": "3441x-front-panel-runtime-examples-v1",
+  "word_notation": "0x000..0x0ff DATA; 0x100..0x1ff CMMD with ninth bit set",
+  "examples": [
+    {"name":"get_revision_then_status","tx_words":["0x001","0x105"],"rx_bytes":["0x00","0x09","0x01"]},
+    {"name":"get_id_then_status","tx_words":["0x003","0x105"],"rx_bytes":["0x1a","0x01"]},
+    {"name":"beep_then_status","tx_words":["0x013","0x105"],"rx_bytes":["0x01","0x01"]},
+    {"name":"one_byte_display_write_then_status","tx_words":["0x021","0x001","0x095","0x0a5","0x105"],"rx_bytes":["0x01","0x01"]},
+    {"name":"echo_and_status_resync","tx_words":["0x034","0x0a5","0x105"],"rx_bytes":["0xa5","0x00"]}
+  ]
+}
+

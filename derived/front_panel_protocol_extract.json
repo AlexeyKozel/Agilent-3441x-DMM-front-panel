@@ -1,0 +1,1624 @@
+{
+  "schema": "34410a-front-panel-static-protocol-evidence-v2",
+  "firmware": {
+    "path": "derived/firmware/34410A_front_panel_firmware.bin",
+    "length": 4162,
+    "sha256": "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd"
+  },
+  "ppc_app": {
+    "path": "derived/firmware/34410a/34410A_APP_243_decompressed.bin",
+    "length": 12862800,
+    "sha256": "9d05d676bf87d5109f75150935d6a95d8422ce4ceec2e768f5538caba9d02c6b"
+  },
+  "command_table": {
+    "offset": "0x0882",
+    "entry_count": 64,
+    "entries": [
+      {
+        "command": "0x00",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x01",
+        "handler": "0x0F44",
+        "disposition": "implemented",
+        "name": "get_revision"
+      },
+      {
+        "command": "0x02",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x03",
+        "handler": "0x0FE6",
+        "disposition": "implemented",
+        "name": "get_id"
+      },
+      {
+        "command": "0x04",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x05",
+        "handler": "0x0FEF",
+        "disposition": "implemented",
+        "name": "get_status"
+      },
+      {
+        "command": "0x06",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x07",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x08",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x09",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x0A",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x0B",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x0C",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x0D",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x0E",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x0F",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x10",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x11",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x12",
+        "handler": "0x0C88",
+        "disposition": "implemented",
+        "name": "generate_sound"
+      },
+      {
+        "command": "0x13",
+        "handler": "0x0F2F",
+        "disposition": "implemented",
+        "name": "beep"
+      },
+      {
+        "command": "0x14",
+        "handler": "0x0FAE",
+        "disposition": "implemented",
+        "name": "click"
+      },
+      {
+        "command": "0x15",
+        "handler": "0x0F93",
+        "disposition": "implemented",
+        "name": "dequeue_key_event"
+      },
+      {
+        "command": "0x16",
+        "handler": "0x0056",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x17",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x18",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x19",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x1A",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x1B",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x1C",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x1D",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x1E",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x1F",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x20",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x21",
+        "handler": "0x100E",
+        "disposition": "special_inline",
+        "name": "write_display"
+      },
+      {
+        "command": "0x22",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x23",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x24",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x25",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x26",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x27",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x28",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x29",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x2A",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x2B",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x2C",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x2D",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x2E",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x2F",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x30",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x31",
+        "handler": "0x0E5D",
+        "disposition": "implemented",
+        "name": "play_sound_sequence"
+      },
+      {
+        "command": "0x32",
+        "handler": "0x0F66",
+        "disposition": "implemented",
+        "name": "enable_break_detect"
+      },
+      {
+        "command": "0x33",
+        "handler": "0x0FBA",
+        "disposition": "implemented",
+        "name": "disable_break_detect"
+      },
+      {
+        "command": "0x34",
+        "handler": "0x0EA9",
+        "disposition": "implemented",
+        "name": "protocol_echo"
+      },
+      {
+        "command": "0x35",
+        "handler": "0x1035",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x36",
+        "handler": "0x0E77",
+        "disposition": "implemented",
+        "name": "diagnostic_key_traffic"
+      },
+      {
+        "command": "0x37",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x38",
+        "handler": "0x0DC9",
+        "disposition": "implemented",
+        "name": "set_key_irq_enable"
+      },
+      {
+        "command": "0x39",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x3A",
+        "handler": "0x0FC6",
+        "disposition": "implemented",
+        "name": "flush_key_fifo"
+      },
+      {
+        "command": "0x3B",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x3C",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x3D",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x3E",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      },
+      {
+        "command": "0x3F",
+        "handler": "0x1020",
+        "disposition": "rejected_0x81",
+        "name": null
+      }
+    ]
+  },
+  "sound_sequences": {
+    "layouts": [
+      {
+        "id": 1,
+        "offset": "0x031E",
+        "pair_count": 13
+      },
+      {
+        "id": 2,
+        "offset": "0x0338",
+        "pair_count": 8
+      },
+      {
+        "id": 3,
+        "offset": "0x0348",
+        "pair_count": 24
+      },
+      {
+        "id": 4,
+        "offset": "0x0378",
+        "pair_count": 31
+      },
+      {
+        "id": 5,
+        "offset": "0x03B6",
+        "pair_count": 37
+      }
+    ],
+    "pairs": {
+      "1": [
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x25"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x26"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x27"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x29"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2A"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2C"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2D"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2E"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2F"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x30"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x31"
+        }
+      ],
+      "2": [
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x31"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x33"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x35"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3A"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3C"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3D"
+        }
+      ],
+      "3": [
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x03",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x03",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x2F"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2D"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2C"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2A"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x2F"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2D"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2C"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2A"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x2F"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2D"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2C"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x2D"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x2A"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x11",
+          "tone_index": "0x28"
+        },
+        {
+          "duration_selector": "0x00",
+          "tone_index": "0x00"
+        }
+      ],
+      "4": [
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x39"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x39"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x39"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x39"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x00",
+          "tone_index": "0x00"
+        }
+      ],
+      "5": [
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x33"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x33"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x2F"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x3D"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x39"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x11",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x02",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x02",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x33"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x33"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x2F"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x09",
+          "tone_index": "0x3D"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x3B"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x39"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x38"
+        },
+        {
+          "duration_selector": "0x05",
+          "tone_index": "0x36"
+        },
+        {
+          "duration_selector": "0x11",
+          "tone_index": "0x34"
+        },
+        {
+          "duration_selector": "0x00",
+          "tone_index": "0x00"
+        }
+      ]
+    }
+  },
+  "tone_reload_table": {
+    "offset": "0x0274",
+    "entry_count": 85,
+    "pairs": [
+      {
+        "index": 0,
+        "reload_hi": "0x00",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 1,
+        "reload_hi": "0xD5",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 2,
+        "reload_hi": "0xC9",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 3,
+        "reload_hi": "0xBE",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 4,
+        "reload_hi": "0xB3",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 5,
+        "reload_hi": "0xA9",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 6,
+        "reload_hi": "0x9F",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 7,
+        "reload_hi": "0x96",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 8,
+        "reload_hi": "0x8E",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 9,
+        "reload_hi": "0x86",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 10,
+        "reload_hi": "0x7E",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 11,
+        "reload_hi": "0x77",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 12,
+        "reload_hi": "0x70",
+        "reload_lo": "0x07"
+      },
+      {
+        "index": 13,
+        "reload_hi": "0xD5",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 14,
+        "reload_hi": "0xC9",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 15,
+        "reload_hi": "0xBE",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 16,
+        "reload_hi": "0xB3",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 17,
+        "reload_hi": "0xA9",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 18,
+        "reload_hi": "0x9F",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 19,
+        "reload_hi": "0x96",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 20,
+        "reload_hi": "0x8E",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 21,
+        "reload_hi": "0x86",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 22,
+        "reload_hi": "0x7E",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 23,
+        "reload_hi": "0x77",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 24,
+        "reload_hi": "0x70",
+        "reload_lo": "0x03"
+      },
+      {
+        "index": 25,
+        "reload_hi": "0xD5",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 26,
+        "reload_hi": "0xC9",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 27,
+        "reload_hi": "0xBE",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 28,
+        "reload_hi": "0xB3",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 29,
+        "reload_hi": "0xA9",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 30,
+        "reload_hi": "0x9F",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 31,
+        "reload_hi": "0x96",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 32,
+        "reload_hi": "0x8E",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 33,
+        "reload_hi": "0x86",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 34,
+        "reload_hi": "0x7E",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 35,
+        "reload_hi": "0x77",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 36,
+        "reload_hi": "0x70",
+        "reload_lo": "0x01"
+      },
+      {
+        "index": 37,
+        "reload_hi": "0xD5",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 38,
+        "reload_hi": "0xC9",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 39,
+        "reload_hi": "0xBE",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 40,
+        "reload_hi": "0xB3",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 41,
+        "reload_hi": "0xA9",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 42,
+        "reload_hi": "0x9F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 43,
+        "reload_hi": "0x96",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 44,
+        "reload_hi": "0x8E",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 45,
+        "reload_hi": "0x86",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 46,
+        "reload_hi": "0x7E",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 47,
+        "reload_hi": "0x77",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 48,
+        "reload_hi": "0x70",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 49,
+        "reload_hi": "0x6A",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 50,
+        "reload_hi": "0x64",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 51,
+        "reload_hi": "0x5F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 52,
+        "reload_hi": "0x59",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 53,
+        "reload_hi": "0x54",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 54,
+        "reload_hi": "0x4F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 55,
+        "reload_hi": "0x4B",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 56,
+        "reload_hi": "0x47",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 57,
+        "reload_hi": "0x43",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 58,
+        "reload_hi": "0x3F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 59,
+        "reload_hi": "0x3B",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 60,
+        "reload_hi": "0x38",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 61,
+        "reload_hi": "0x35",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 62,
+        "reload_hi": "0x32",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 63,
+        "reload_hi": "0x2F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 64,
+        "reload_hi": "0x2C",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 65,
+        "reload_hi": "0x2A",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 66,
+        "reload_hi": "0x27",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 67,
+        "reload_hi": "0x25",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 68,
+        "reload_hi": "0x23",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 69,
+        "reload_hi": "0x21",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 70,
+        "reload_hi": "0x1F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 71,
+        "reload_hi": "0x1D",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 72,
+        "reload_hi": "0x1C",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 73,
+        "reload_hi": "0x1A",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 74,
+        "reload_hi": "0x19",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 75,
+        "reload_hi": "0x17",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 76,
+        "reload_hi": "0x16",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 77,
+        "reload_hi": "0x15",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 78,
+        "reload_hi": "0x13",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 79,
+        "reload_hi": "0x12",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 80,
+        "reload_hi": "0x11",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 81,
+        "reload_hi": "0x10",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 82,
+        "reload_hi": "0x0F",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 83,
+        "reload_hi": "0x0E",
+        "reload_lo": "0x00"
+      },
+      {
+        "index": 84,
+        "reload_hi": "0x0E",
+        "reload_lo": "0x00"
+      }
+    ]
+  },
+  "display_object_map": {
+    "file_offset": "0x7b8ab0",
+    "program_address": "0x7c8ab0",
+    "entries": [
+      {
+        "object_id": "0x0064",
+        "cell": 5,
+        "name": null
+      },
+      {
+        "object_id": "0x0065",
+        "cell": 245,
+        "name": null
+      },
+      {
+        "object_id": "0x00C8",
+        "cell": 39,
+        "name": "SAMPLE"
+      },
+      {
+        "object_id": "0x00CA",
+        "cell": 0,
+        "name": "HI_Z"
+      },
+      {
+        "object_id": "0x00CC",
+        "cell": 1,
+        "name": "OCOMP"
+      },
+      {
+        "object_id": "0x00CF",
+        "cell": 40,
+        "name": "MAN_RNG"
+      },
+      {
+        "object_id": "0x00D6",
+        "cell": 41,
+        "name": "TRIG"
+      },
+      {
+        "object_id": "0x00DC",
+        "cell": 80,
+        "name": "HOLD"
+      },
+      {
+        "object_id": "0x00CD",
+        "cell": 81,
+        "name": "REMOTE"
+      },
+      {
+        "object_id": "0x00CE",
+        "cell": 120,
+        "name": "ERROR"
+      },
+      {
+        "object_id": "0x00D1",
+        "cell": 121,
+        "name": "NULL"
+      },
+      {
+        "object_id": "0x00D4",
+        "cell": 160,
+        "name": "SHIFT"
+      },
+      {
+        "object_id": "0x00DA",
+        "cell": 161,
+        "name": "MATH"
+      },
+      {
+        "object_id": "0x00D8",
+        "cell": 200,
+        "name": "STATS"
+      },
+      {
+        "object_id": "0x00D9",
+        "cell": 201,
+        "name": "LIMITS"
+      },
+      {
+        "object_id": "0x00D7",
+        "cell": 239,
+        "name": "REAR"
+      },
+      {
+        "object_id": "0x00CB",
+        "cell": 202,
+        "name": "4W"
+      },
+      {
+        "object_id": "0x00D2",
+        "cell": 203,
+        "name": "CONT"
+      },
+      {
+        "object_id": "0x00D3",
+        "cell": 204,
+        "name": "DIODE"
+      },
+      {
+        "object_id": "0x00DD",
+        "cell": 279,
+        "name": "LEFT"
+      },
+      {
+        "object_id": "0x00DE",
+        "cell": 599,
+        "name": "RIGHT"
+      },
+      {
+        "object_id": "0x03E8",
+        "cell": 0,
+        "name": null
+      },
+      {
+        "object_id": "0x03E9",
+        "cell": 0,
+        "name": null
+      },
+      {
+        "object_id": "0x03EA",
+        "cell": 0,
+        "name": null
+      },
+      {
+        "object_id": "0x03EB",
+        "cell": 0,
+        "name": null
+      }
+    ]
+  },
+  "raw_key_to_ppc_event": {
+    "file_offset": "0x7b8f84",
+    "program_address": "0x7c8f84",
+    "events_by_raw_id_0x00_through_0x14": [
+      4,
+      6,
+      26,
+      16,
+      14,
+      8,
+      11,
+      21,
+      17,
+      13,
+      5,
+      19,
+      12,
+      15,
+      0,
+      9,
+      25,
+      10,
+      0,
+      0,
+      63
+    ],
+    "raw_0x3f_uses_table_index": 20,
+    "physical_keys": [
+      {
+        "label": "DCV",
+        "raw_id": "0x00",
+        "ppc_event": "0x04",
+        "shift_function": "DCI",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "ACV",
+        "raw_id": "0x0A",
+        "ppc_event": "0x05",
+        "shift_function": "ACI",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "2W",
+        "raw_id": "0x01",
+        "ppc_event": "0x06",
+        "shift_function": "4W",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "2ND DISP",
+        "raw_id": "0x0B",
+        "ppc_event": "0x13",
+        "shift_function": "RESET",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "DATA LOG",
+        "raw_id": "0x02",
+        "ppc_event": "0x1A",
+        "shift_function": "UTILITY",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "EXIT",
+        "raw_id": "0x0C",
+        "ppc_event": "0x0C",
+        "shift_function": "AUTO RNG",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "FREQ",
+        "raw_id": "0x05",
+        "ppc_event": "0x08",
+        "shift_function": "CAP",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "CONT",
+        "raw_id": "0x0F",
+        "ppc_event": "0x09",
+        "shift_function": "DIODE",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "CONFIG",
+        "raw_id": "0x06",
+        "ppc_event": "0x0B",
+        "shift_function": "TEMP",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "NULL",
+        "raw_id": "0x10",
+        "ppc_event": "0x19",
+        "shift_function": "MATH",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "TRIGGER",
+        "raw_id": "0x07",
+        "ppc_event": "0x15",
+        "shift_function": "AUTO TRIG",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "SHIFT",
+        "raw_id": "0x11",
+        "ppc_event": "0x0A",
+        "shift_function": "LOCAL",
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "UP",
+        "raw_id": "0x03",
+        "ppc_event": "0x10",
+        "shift_function": null,
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "DOWN",
+        "raw_id": "0x08",
+        "ppc_event": "0x11",
+        "shift_function": null,
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "LEFT",
+        "raw_id": "0x04",
+        "ppc_event": "0x0E",
+        "shift_function": null,
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "RIGHT",
+        "raw_id": "0x0D",
+        "ppc_event": "0x0F",
+        "shift_function": null,
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      },
+      {
+        "label": "ENTER",
+        "raw_id": "0x09",
+        "ppc_event": "0x0D",
+        "shift_function": null,
+        "label_provenance": "recovered_implementation_guide",
+        "translation_provenance": "exact_ppc_app_table"
+      }
+    ]
+  }
+}
