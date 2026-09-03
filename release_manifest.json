@@ -1,6 +1,6 @@
 {
   "schema": "3441x-front-panel-public-release-v1",
-  "release": "1.1.0",
+  "release": "1.2.0",
   "prepared_at": "2026-09-03",
   "publication_status": "PUBLIC_RELEASE",
   "target_repository": "https://github.com/AlexeyKozel/Agilent-3441x-DMM-front-panel",
@@ -27,6 +27,7 @@
     "bench_electrical_validation": "OPEN",
     "bench_update_execution": "OPEN",
     "original_procedure_pseudocode": "INDEPENDENTLY_REWRITTEN_FROM_DIRECT_STATIC_EVIDENCE",
+    "front_panel_python_emulator": "OFFLINE_REFERENCE_MODEL_VALIDATED_NOT_HARDWARE_TESTED",
     "front_panel_c99_emulator": "OFFLINE_DIFFERENTIAL_VALIDATED_NOT_HARDWARE_TESTED",
     "ppc_host_emulator": "OFFLINE_MODEL_VALIDATED_NOT_HARDWARE_TESTED"
   },

@@ -11,11 +11,11 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from reference_model import PanelModel  # noqa: E402
+from emulators.front_panel_python import PanelModel  # noqa: E402
 
 
 class PublicationDataTests(unittest.TestCase):
-    def test_transaction_examples_match_reference_model(self):
+    def test_transaction_examples_match_python_front_panel_emulator(self):
         source = json.loads((ROOT / "examples/transactions.json").read_text(encoding="utf-8"))
         for example in source["examples"]:
             panel = PanelModel()

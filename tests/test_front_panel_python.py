@@ -9,7 +9,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from reference_model import (  # noqa: E402
+from emulators.front_panel_python import (  # noqa: E402
     ANNUNCIATORS,
     CellState,
     PanelModel,
@@ -17,10 +17,10 @@ from reference_model import (  # noqa: E402
     encode_key_event,
     raw_to_ppc_event,
 )
-from reference_model.model import ReplyWord  # noqa: E402
+from emulators.front_panel_python.model import ReplyWord  # noqa: E402
 
 
-class ReferenceModelTests(unittest.TestCase):
+class FrontPanelPythonEmulatorTests(unittest.TestCase):
     def test_reset_startup_irq_disabled_srq_low_and_empty_dequeue(self):
         panel = PanelModel()
         self.assertFalse(panel.irq_enabled)
@@ -235,7 +235,7 @@ class ReferenceModelTests(unittest.TestCase):
         self.assertEqual(panel.character_cell("secondary", 17, 16), 598)
 
     def test_deterministic_fixture_trace(self):
-        fixture = ROOT / "reference_model" / "fixtures" / "traces.json"
+        fixture = ROOT / "emulators" / "front_panel_python" / "fixtures" / "traces.json"
         data = json.loads(fixture.read_text(encoding="utf-8"))
         panel = PanelModel()
         words = [int(word, 16) for word in data["echo_resync"]["words"]]

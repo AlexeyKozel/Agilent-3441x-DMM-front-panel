@@ -1,4 +1,4 @@
-"""C/reference_model differential checks for deterministic 9-bit traces.
+"""C/Python front-panel emulator differential checks for deterministic 9-bit traces.
 
 The compiler can be selected explicitly with ``FP_C_COMPILER`` (as used for
 the reproducible TinyCC host check).  If no compiler is available, only the
@@ -20,7 +20,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 MODEL_ROOT = HERE.parents[1]
 sys.path.insert(0, str(MODEL_ROOT))
-from reference_model import PanelModel  # noqa: E402
+from emulators.front_panel_python import PanelModel  # noqa: E402
 
 
 def _compiler() -> str | None:

@@ -1,4 +1,4 @@
-"""Host-side reference model of the original 34410A front-panel runtime protocol."""
+"""Python emulator and reference model of the original 3441x front panel."""
 
 from .model import (
     ANNUNCIATORS,

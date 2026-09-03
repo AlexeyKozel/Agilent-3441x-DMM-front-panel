@@ -8,4 +8,4 @@ The MIT License in this repository applies to the independently created code, te
 
 No PPC APP image, original manual, schematic PDF, decompiler database, or full disassembly is included.
 
-The FP and PPC emulators have not been tested on real hardware. They are offline research models and are not represented as instrument-tested drivers or firmware.
+The Python FP, C99 FP, and PPC host emulators have not been tested on real hardware. They are offline research models and are not represented as instrument-tested drivers or firmware.

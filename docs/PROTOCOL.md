@@ -1,6 +1,6 @@
 # Agilent 34410A/34411A Original Front-Panel Runtime Protocol
 
-Specification version: `1.1.0`, 2026-09-03.
+Specification version: `1.2.0`, 2026-09-03.
 
 ## 1. Scope and evidence status
 

@@ -15,7 +15,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 MODEL_ROOT = HERE.parents[1]
 sys.path.insert(0, str(MODEL_ROOT))
-from reference_model import PanelModel, raw_to_ppc_event  # noqa: E402
+from emulators.front_panel_python import PanelModel, raw_to_ppc_event  # noqa: E402
 
 
 class SourceSafetyTests(unittest.TestCase):

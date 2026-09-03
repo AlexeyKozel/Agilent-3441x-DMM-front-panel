@@ -28,6 +28,8 @@ REQUIRED = {
     "docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md",
     "firmware/34410A_front_panel_firmware.bin",
     "emulators/__init__.py",
+    "emulators/front_panel_python/README.md", "emulators/front_panel_python/__init__.py",
+    "emulators/front_panel_python/model.py", "emulators/front_panel_python/fixtures/traces.json",
     "emulators/front_panel_c99/README.md", "emulators/front_panel_c99/Makefile",
     "emulators/front_panel_c99/mcu_core.c", "emulators/front_panel_c99/mcu_core.h",
     "emulators/front_panel_c99/test_host.c", "emulators/front_panel_c99/trace_runner.c",
@@ -38,12 +40,10 @@ REQUIRED = {
     "data/keys.csv", "data/original_firmware_update.json",
     "data/original_mcu_architecture.json", "data/original_mcu_function_map.csv",
     "derived/front_panel_protocol_extract.json",
-    "derived/original_mcu_trace_results.json", "reference_model/model.py",
-    "reference_model/fixtures/traces.json", "tests/test_reference_model.py",
+    "derived/original_mcu_trace_results.json", "tests/test_front_panel_python.py",
     "tests/test_publication_data.py", "tests/test_ppc_emulator.py",
     "examples/transactions.json",
 }
-
 
 def relative_files() -> list[Path]:
     files = []
@@ -103,8 +103,8 @@ def validate_english_only(errors: list[str]) -> None:
 
 def validate_semantics(errors: list[str]) -> None:
     manifest = json.loads((ROOT / "release_manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("release") != "1.1.0":
-        errors.append("manifest release must be 1.1.0")
+    if manifest.get("release") != "1.2.0":
+        errors.append("manifest release must be 1.2.0")
     if manifest.get("publication_status") != "PUBLIC_RELEASE":
         errors.append("manifest must be PUBLIC_RELEASE after owner approval")
     if manifest.get("redistributed_proprietary_artifacts") is not True:
@@ -120,12 +120,15 @@ def validate_semantics(errors: list[str]) -> None:
         errors.append("manifest firmware publication basis is missing")
 
     scope = manifest.get("scope", {})
+    if scope.get("front_panel_python_emulator") != "OFFLINE_REFERENCE_MODEL_VALIDATED_NOT_HARDWARE_TESTED":
+        errors.append("Python front-panel emulator evidence boundary is incorrect")
     if scope.get("front_panel_c99_emulator") != "OFFLINE_DIFFERENTIAL_VALIDATED_NOT_HARDWARE_TESTED":
         errors.append("front-panel emulator evidence boundary is incorrect")
     if scope.get("ppc_host_emulator") != "OFFLINE_MODEL_VALIDATED_NOT_HARDWARE_TESTED":
         errors.append("PPC emulator evidence boundary is incorrect")
     for rel in (
         "README.md",
+        "emulators/front_panel_python/README.md",
         "emulators/front_panel_c99/README.md",
         "emulators/ppc_host/README.md",
     ):

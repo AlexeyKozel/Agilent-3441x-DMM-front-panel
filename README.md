@@ -4,7 +4,7 @@ This repository is a reproducible static reconstruction of the interface between
 
 ## Status
 
-This is the public `1.1.0` release, prepared on 2026-09-03. The project can be extended through normal subsequent commits and tagged releases.
+This is the public `1.2.0` release, prepared on 2026-09-03. The project can be extended through normal subsequent commits and tagged releases.
 
 The following areas are statically closed:
 
@@ -31,14 +31,15 @@ Bench-measured voltage levels, edge quality, reset/break timing, and absolute so
 - [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) - unresolved items;
 - [docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md](docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md) - independently rewritten pseudocode of key original 8051 and PPC procedures;
 - `data/` and `derived/` - exact machine-readable facts and closure traces;
-- `reference_model/` and `tests/` - deterministic offline behavioral model;
+- [`emulators/front_panel_python/`](emulators/front_panel_python/) - Python emulator and reference model of the original front-panel MCU behavior;
 - [`emulators/front_panel_c99/`](emulators/front_panel_c99/) - target-neutral C99 emulator of the original front-panel MCU behavior;
 - [`emulators/ppc_host/`](emulators/ppc_host/) - Python emulator of the stock PPC-side transaction wrapper;
+- `tests/` - offline protocol, publication-data, Python FP, and PPC emulator tests;
 - `tools/verify_release.py` - fail-closed structure, language, binary identity, and checksum validation.
 
 ## Emulator validation boundary
 
-**NOT TESTED ON REAL HARDWARE: FP and PPC emulators.**
+**NOT TESTED ON REAL HARDWARE: Python FP, C99 FP, and PPC host emulators.**
 
 They have been validated only through offline unit tests, deterministic traces, C-to-Python differential checks, and bounded fuzz inputs. They have not been connected to a real 34410A, 34411A, original front panel, UART, reset/SRQ line, VFD, keypad, or J1102 connector. Passing these tests does not establish target ABI correctness, real-time behavior, electrical compatibility, signal integrity, or safe operation on an instrument.
 

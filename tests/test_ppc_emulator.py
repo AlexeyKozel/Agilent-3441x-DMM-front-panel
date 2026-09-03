@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from emulators.ppc_host import PpcHostEmulator, PpcProtocolError  # noqa: E402
-from reference_model import PanelModel  # noqa: E402
+from emulators.front_panel_python import PanelModel  # noqa: E402
 
 
 class RecordingEndpoint:

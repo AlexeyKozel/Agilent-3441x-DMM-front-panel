@@ -10,7 +10,7 @@ display-span validation, key dequeue/IRQ control, streaming echo, reply-length
 checks, and CMMD resynchronization after an incomplete payload.
 
 The endpoint is deliberately abstract. The included tests connect it to the
-Python `reference_model.PanelModel`; no serial port is opened.
+Python `emulators.front_panel_python.PanelModel`; no serial port is opened.
 
 ## Hardware status
 
@@ -25,7 +25,7 @@ electrical levels, signal integrity, or safe operation on an instrument.
 
 ```python
 from emulators.ppc_host import PpcHostEmulator
-from reference_model import PanelModel
+from emulators.front_panel_python import PanelModel
 
 panel = PanelModel()
 host = PpcHostEmulator(panel)

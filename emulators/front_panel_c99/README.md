@@ -11,7 +11,7 @@ make test
 python -m unittest -v emulators/front_panel_c99/test_differential.py emulators/front_panel_c99/test_audit.py
 ```
 
-The publication review rebuilt the core with TinyCC 0.9.27 (x86_64 Windows), compiler SHA-256 `e9cb3e89e20a9efead83cc9e6b100314275634c2f705056da71f424ea9b0cdf0`. The C host harness passed, as did 13 source, boundary, deterministic, and bounded-fuzz differential tests against `reference_model.PanelModel`.
+The publication review rebuilt the core with TinyCC 0.9.27 (x86_64 Windows), compiler SHA-256 `e9cb3e89e20a9efead83cc9e6b100314275634c2f705056da71f424ea9b0cdf0`. The C host harness passed, as did 13 source, boundary, deterministic, and bounded-fuzz differential tests against `emulators.front_panel_python.PanelModel`.
 
 ## Hardware status
 
