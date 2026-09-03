@@ -1,6 +1,6 @@
 {
   "schema": "3441x-front-panel-public-release-v1",
-  "release": "1.0.0",
+  "release": "1.0.1",
   "prepared_at": "2026-09-03",
   "publication_status": "PUBLIC_RELEASE",
   "target_repository": "https://github.com/AlexeyKozel/Agilent-3441x-DMM-front-panel",

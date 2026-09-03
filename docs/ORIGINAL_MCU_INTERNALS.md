@@ -1,6 +1,6 @@
 # Original Front-Panel 8051 MCU Internals
 
-Specification version: `1.0.0`, 2026-09-03.
+Specification version: `1.0.1`, 2026-09-03.
 
 ## 1. Purpose and evidence boundary
 

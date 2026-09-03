@@ -4,7 +4,7 @@ This repository is a reproducible static reconstruction of the interface between
 
 ## Status
 
-Release candidate `1.0.0`, prepared on 2026-09-03. This package remains `LOCAL_REVIEW_ONLY`: it has not been published and requires the project owner's explicit approval before any push or GitHub Release.
+Release candidate `1.0.1`, prepared on 2026-09-03. This is the public `1.0.1` release. The project can be extended through normal subsequent commits and tagged releases.
 
 The following areas are statically closed:
 

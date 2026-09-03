@@ -94,8 +94,8 @@ def validate_english_only(errors: list[str]) -> None:
 
 def validate_semantics(errors: list[str]) -> None:
     manifest = json.loads((ROOT / "release_manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("release") != "1.0.0":
-        errors.append("manifest release must be 1.0.0")
+    if manifest.get("release") != "1.0.1":
+        errors.append("manifest release must be 1.0.1")
     if manifest.get("publication_status") != "PUBLIC_RELEASE":
         errors.append("manifest must be PUBLIC_RELEASE after owner approval")
     if manifest.get("redistributed_proprietary_artifacts") is not True:
