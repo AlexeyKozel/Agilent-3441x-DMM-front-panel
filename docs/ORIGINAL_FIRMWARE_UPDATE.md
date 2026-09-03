@@ -1,6 +1,6 @@
 # Stock Original Front-Panel Firmware Update
 
-Specification version: `1.0.1`, 2026-09-03.
+Specification version: `1.1.0`, 2026-09-03.
 
 ## 1. Scope
 

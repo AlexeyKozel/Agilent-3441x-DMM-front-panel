@@ -4,7 +4,7 @@ This repository is a reproducible static reconstruction of the interface between
 
 ## Status
 
-Release candidate `1.0.1`, prepared on 2026-09-03. This is the public `1.0.1` release. The project can be extended through normal subsequent commits and tagged releases.
+This is the public `1.1.0` release, prepared on 2026-09-03. The project can be extended through normal subsequent commits and tagged releases.
 
 The following areas are statically closed:
 
@@ -29,9 +29,18 @@ Bench-measured voltage levels, edge quality, reset/break timing, and absolute so
 - [docs/PHYSICAL_INTERFACE.md](docs/PHYSICAL_INTERFACE.md) - J1102 and electrical evidence boundaries;
 - [docs/PROVENANCE.md](docs/PROVENANCE.md) - source identities and method;
 - [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) - unresolved items;
+- [docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md](docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md) - independently rewritten pseudocode of key original 8051 and PPC procedures;
 - `data/` and `derived/` - exact machine-readable facts and closure traces;
 - `reference_model/` and `tests/` - deterministic offline behavioral model;
+- [`emulators/front_panel_c99/`](emulators/front_panel_c99/) - target-neutral C99 emulator of the original front-panel MCU behavior;
+- [`emulators/ppc_host/`](emulators/ppc_host/) - Python emulator of the stock PPC-side transaction wrapper;
 - `tools/verify_release.py` - fail-closed structure, language, binary identity, and checksum validation.
+
+## Emulator validation boundary
+
+**NOT TESTED ON REAL HARDWARE: FP and PPC emulators.**
+
+They have been validated only through offline unit tests, deterministic traces, C-to-Python differential checks, and bounded fuzz inputs. They have not been connected to a real 34410A, 34411A, original front panel, UART, reset/SRQ line, VFD, keypad, or J1102 connector. Passing these tests does not establish target ABI correctness, real-time behavior, electrical compatibility, signal integrity, or safe operation on an instrument.
 
 ## Verification
 
@@ -39,6 +48,7 @@ Python 3.11 or newer is required; no third-party packages are needed.
 
 ```text
 python -m unittest discover -s tests -v
+python -m unittest -v emulators/front_panel_c99/test_differential.py emulators/front_panel_c99/test_audit.py
 python tools/verify_release.py
 ```
 

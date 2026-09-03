@@ -25,14 +25,23 @@ REQUIRED = {
     "docs/PROTOCOL.md", "docs/PHYSICAL_INTERFACE.md",
     "docs/ORIGINAL_FIRMWARE_UPDATE.md", "docs/ORIGINAL_MCU_INTERNALS.md",
     "docs/PROVENANCE.md", "docs/OPEN_QUESTIONS.md",
+    "docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md",
     "firmware/34410A_front_panel_firmware.bin",
+    "emulators/__init__.py",
+    "emulators/front_panel_c99/README.md", "emulators/front_panel_c99/Makefile",
+    "emulators/front_panel_c99/mcu_core.c", "emulators/front_panel_c99/mcu_core.h",
+    "emulators/front_panel_c99/test_host.c", "emulators/front_panel_c99/trace_runner.c",
+    "emulators/front_panel_c99/test_audit.py", "emulators/front_panel_c99/test_differential.py",
+    "emulators/ppc_host/README.md", "emulators/ppc_host/__init__.py",
+    "emulators/ppc_host/ppc_emulator.py",
     "data/commands.csv", "data/j1102_pinout.csv", "data/annunciators.csv",
     "data/keys.csv", "data/original_firmware_update.json",
     "data/original_mcu_architecture.json", "data/original_mcu_function_map.csv",
     "derived/front_panel_protocol_extract.json",
     "derived/original_mcu_trace_results.json", "reference_model/model.py",
     "reference_model/fixtures/traces.json", "tests/test_reference_model.py",
-    "tests/test_publication_data.py", "examples/transactions.json",
+    "tests/test_publication_data.py", "tests/test_ppc_emulator.py",
+    "examples/transactions.json",
 }
 
 
@@ -94,8 +103,8 @@ def validate_english_only(errors: list[str]) -> None:
 
 def validate_semantics(errors: list[str]) -> None:
     manifest = json.loads((ROOT / "release_manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("release") != "1.0.1":
-        errors.append("manifest release must be 1.0.1")
+    if manifest.get("release") != "1.1.0":
+        errors.append("manifest release must be 1.1.0")
     if manifest.get("publication_status") != "PUBLIC_RELEASE":
         errors.append("manifest must be PUBLIC_RELEASE after owner approval")
     if manifest.get("redistributed_proprietary_artifacts") is not True:
@@ -111,6 +120,23 @@ def validate_semantics(errors: list[str]) -> None:
         errors.append("manifest firmware publication basis is missing")
 
     scope = manifest.get("scope", {})
+    if scope.get("front_panel_c99_emulator") != "OFFLINE_DIFFERENTIAL_VALIDATED_NOT_HARDWARE_TESTED":
+        errors.append("front-panel emulator evidence boundary is incorrect")
+    if scope.get("ppc_host_emulator") != "OFFLINE_MODEL_VALIDATED_NOT_HARDWARE_TESTED":
+        errors.append("PPC emulator evidence boundary is incorrect")
+    for rel in (
+        "README.md",
+        "emulators/front_panel_c99/README.md",
+        "emulators/ppc_host/README.md",
+    ):
+        disclaimer = (ROOT / rel).read_text(encoding="utf-8")
+        if "NOT TESTED ON REAL HARDWARE" not in disclaimer:
+            errors.append(f"missing real-hardware disclaimer: {rel}")
+
+    pseudocode = (ROOT / "docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md").read_text(encoding="utf-8")
+    for anchor in ("CODE:05E3", "0x0058EFA4", "0x00359AD0", "0x00367074"):
+        if anchor not in pseudocode:
+            errors.append(f"original-procedure pseudocode is missing anchor {anchor}")
     for key in (
         "original_lpc932_isp_wire_protocol",
         "stock_ppc_update_flow",

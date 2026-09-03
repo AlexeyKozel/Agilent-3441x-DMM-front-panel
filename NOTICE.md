@@ -7,3 +7,5 @@ At the project owner's explicit direction and with the owner's confirmation of t
 The MIT License in this repository applies to the independently created code, tests, documentation, and tables. They do not grant rights in the included manufacturer firmware image, product names, trademarks, original manuals, schematics, or other third-party material. The firmware image remains subject to any rights held by its copyright owner.
 
 No PPC APP image, original manual, schematic PDF, decompiler database, or full disassembly is included.
+
+The FP and PPC emulators have not been tested on real hardware. They are offline research models and are not represented as instrument-tested drivers or firmware.
