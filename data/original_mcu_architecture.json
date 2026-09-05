@@ -7,7 +7,9 @@
     "code_range": "0x0000..0x1041",
     "sha256": "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd",
     "recovered_function_count": 71,
-    "revision": "0x0009"
+    "revision": "0x0009",
+    "redistributed": false,
+    "availability": "external_explicit_input"
   },
   "identity_boundary": {
     "host_isp_class": "Isp8051lpc932",
@@ -27,6 +29,13 @@
     "internal_ram_cleared": true,
     "xram_cleared_bytes": 512,
     "stack_pointer": "0x4F",
+    "application_path_assumption": "P1.4_high",
+    "compiler_initialization_table": "0x04F8",
+    "framebuffer_initial_byte": "0xFF",
+    "framebuffer_initialized_bytes": 150,
+    "software_key_irq_gate_iram36": 1,
+    "debounce_initial_byte": "0x82",
+    "parser_state": "0x01",
     "post_init_calls": [
       "0x0CDD",
       "0x0EED",
@@ -46,7 +55,7 @@
     },
     {
       "anchor": "0x0E91",
-      "role": "diagnostic_key_event_pair_after_30_loops"
+      "role": "diagnostic_pair_if_previous_nonzero_iram43_at_least_30_then_set_counter_1"
     },
     {
       "anchor": "0x103F",
@@ -155,6 +164,8 @@
       ],
       "raw_id_formula": "row + 5*column",
       "debounce_samples": 3,
+      "debounce_samples_scope": "settled_released_to_pressed_or_pressed_to_released",
+      "startup_held_first_pressed_samples": 1,
       "fifo_capacity": 4,
       "enqueue": "0x0E06",
       "dequeue": "0x0D06",
@@ -188,6 +199,11 @@
   "edge_cases": {
     "display_count_zero_store_count": 256,
     "truncated_count_zero_stream_state": "0x00_until_cmmd_resync",
+    "display_store_timing": "immediate_per_received_data_byte",
+    "display_framebuffer_bounds_check": false,
+    "cmmd_resync_preserves_completed_display_stores": true,
+    "diagnostic_command_36_payload": "raw_counter_byte_iram43",
+    "diagnostic_counter_update": "if_nonzero_increment_mod256_and_if_old_ge30_generate_pair_then_set_1",
     "reply_ninth_bit": 0,
     "fifo_overflow": "drop_new_event"
   },

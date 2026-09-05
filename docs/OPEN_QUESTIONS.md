@@ -9,6 +9,6 @@ The following items are not closed by this release:
 - final continuity verification of the physical keypad matrix;
 - internal bytes of the MCU ROM ISP service at `0xFF03` (the wire protocol and stock PPC host flow are statically closed);
 - bench execution and timing of the stock erase/program flow;
-- real-hardware validation of the FP emulator and PPC host emulator, including target ABI, UART driver behavior, timing, reset/SRQ signaling, and electrical compatibility.
+- real-hardware validation of the Python FP, C99 FP, and PPC host emulators, including target ABI, UART driver behavior, timing, reset/SRQ signaling, and electrical compatibility.
 
-These open items do not invalidate closure of the runtime byte protocol, original 8051 architecture and cooperative loop, logical renderer, included original-panel image identity, or ISP wire contract.
+These open items do not invalidate the reconstructed runtime byte protocol, original 8051 architecture and cooperative loop, logical renderer, external original-panel image identity, or stock host ISP wire contract. The normal application startup model assumes P1.4 high; it does not execute the internal-ROM startup branch. Firmware-backed reproduction requires the separately supplied image described in `FIRMWARE_ORACLE.md`.

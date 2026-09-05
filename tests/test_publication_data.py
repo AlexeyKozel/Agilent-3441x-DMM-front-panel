@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import csv
-import hashlib
 import json
 from pathlib import Path
 import sys
@@ -37,26 +36,28 @@ class PublicationDataTests(unittest.TestCase):
         self.assertEqual(rows[3]["net"], "+3.3V_ER")
         self.assertEqual(rows[4]["net"], "+12V_UNREG")
 
-    def test_original_firmware_image_is_bound_to_both_ppc_apps(self):
+    def test_recorded_external_firmware_and_ppc_embedding_metadata(self):
+        # This checks recorded identities, not unavailable PPC APP binaries.
+        # Actual 8051 execution checks require FP_ORIGINAL_FIRMWARE.
         source = json.loads((ROOT / "data/original_firmware_update.json").read_text(encoding="utf-8"))
         image = source["firmware_image"]
         self.assertEqual(image["length"], 4162)
         self.assertEqual(image["revision"], "0x0009")
         self.assertEqual(image["sha256"], "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd")
+        self.assertFalse(image["redistributed"])
         self.assertEqual({row["model"] for row in source["ppc_embeddings"]}, {"34410A", "34411A"})
         self.assertTrue(all(row["slice_identical"] for row in source["ppc_embeddings"]))
         self.assertEqual([row["target"] for row in source["rom_isp_calls_in_panel_image"]], ["0xFF03", "0xFF03"])
 
-    def test_included_original_firmware_binary_identity(self):
-        path = ROOT / "firmware" / "34410A_front_panel_firmware.bin"
-        image = path.read_bytes()
-        self.assertEqual(len(image), 4162)
-        self.assertEqual(
-            hashlib.sha256(image).hexdigest(),
-            "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd",
-        )
-        self.assertEqual(image[0x1000:0x100E].hex(), "000960001e010000000000000000")
-        self.assertEqual(image.count(b"\x12\xff\x03"), 2)
+    def test_firmware_is_external_and_not_in_the_release_tree(self):
+        manifest = json.loads((ROOT / "release_manifest.json").read_text(encoding="utf-8"))
+        self.assertNotIn("included_firmware", manifest)
+        self.assertFalse(manifest["redistributed_proprietary_artifacts"])
+        image = manifest["external_firmware"]
+        self.assertFalse(image["redistributed"])
+        self.assertEqual(image["length"], 4162)
+        self.assertEqual(image["sha256"], "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd")
+        self.assertEqual([p for p in ROOT.rglob("*.bin") if ".git" not in p.relative_to(ROOT).parts], [])
 
     def test_original_isp_record_families_are_complete(self):
         source = json.loads((ROOT / "data/original_firmware_update.json").read_text(encoding="utf-8"))

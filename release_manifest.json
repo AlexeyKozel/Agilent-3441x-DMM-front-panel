@@ -1,13 +1,12 @@
 {
-  "schema": "3441x-front-panel-public-release-v1",
-  "release": "1.2.0",
-  "prepared_at": "2026-09-03",
+  "schema": "3441x-front-panel-public-release-v2",
+  "release": "1.2.1",
+  "prepared_at": "2026-09-05",
   "publication_status": "PUBLIC_RELEASE",
   "target_repository": "https://github.com/AlexeyKozel/Agilent-3441x-DMM-front-panel",
   "licenses": {
     "documentation_and_data": "MIT",
-    "code_and_tests": "MIT",
-    "included_firmware": "THIRD_PARTY_RIGHTS_SEE_NOTICE"
+    "code_and_tests": "MIT"
   },
   "scope": {
     "runtime_protocol": "DIRECT_STATIC_CLOSED",
@@ -29,15 +28,16 @@
     "original_procedure_pseudocode": "INDEPENDENTLY_REWRITTEN_FROM_DIRECT_STATIC_EVIDENCE",
     "front_panel_python_emulator": "OFFLINE_REFERENCE_MODEL_VALIDATED_NOT_HARDWARE_TESTED",
     "front_panel_c99_emulator": "OFFLINE_DIFFERENTIAL_VALIDATED_NOT_HARDWARE_TESTED",
-    "ppc_host_emulator": "OFFLINE_MODEL_VALIDATED_NOT_HARDWARE_TESTED"
+    "ppc_host_emulator": "OFFLINE_MODEL_VALIDATED_NOT_HARDWARE_TESTED",
+    "firmware_oracle": "BOUNDED_EXTERNAL_FIRMWARE_REPLAY_NOT_HARDWARE_TESTED"
   },
-  "redistributed_proprietary_artifacts": true,
-  "included_firmware": {
-    "path": "firmware/34410A_front_panel_firmware.bin",
+  "redistributed_proprietary_artifacts": false,
+  "publication_requires_owner_confirmation": false,
+  "external_firmware": {
     "length": 4162,
     "sha256": "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd",
     "identity": "original_front_panel_application_image_revision_0x0009",
-    "publication_basis": "project_owner_explicitly_authorized_inclusion_and_confirmed_licensing"
-  },
-  "publication_requires_owner_confirmation": false
+    "redistributed": false,
+    "purpose": "OPTIONAL_LOCAL_FIRMWARE_ORACLE"
+  }
 }

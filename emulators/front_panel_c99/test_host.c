@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef NDEBUG
+#error "The host regression harness requires enabled assertions"
+#endif
+
 typedef struct {
     fp_mcu_reply_word_t replies[300];
     size_t reply_count;
@@ -40,6 +44,116 @@ static void expect_reply(probe_t *probe, const uint8_t *values, size_t count)
     }
 }
 
+static void test_startup_and_display(fp_mcu_t *mcu, probe_t *probe)
+{
+    static const uint8_t starts[] = {0, 0x95, 0x96, 0xFF};
+    static const unsigned counts[] = {1, 2, 150, 255, 256};
+    size_t i, s, c;
+    fp_mcu_reset(mcu);
+    assert(mcu->irq_enabled && mcu->srq_low && probe->srq_low);
+    for (i = 0; i < FP_MCU_FRAMEBUFFER_BYTES; ++i) {
+        assert(mcu->framebuffer[i] == 0xFF && mcu->stock_xram[i] == 0xFF);
+    }
+    for (i = 0x96; i < 0xAA; ++i) assert(mcu->stock_xram[i] == 0x82);
+    for (i = 0xAA; i < FP_MCU_STOCK_XRAM_BYTES; ++i) assert(mcu->stock_xram[i] == 0);
+
+    /* Empty dequeue raises SRQ; the default enabled gate makes the next
+     * key lower it again without requiring command 0x38. */
+    clear_replies(probe);
+    send(mcu, probe, 0x15, false);
+    assert(probe->reply_count == 1 && probe->replies[0].byte == 0xFF);
+    assert(!mcu->srq_low && !probe->srq_low);
+    assert(fp_mcu_enqueue_key(mcu, 0, true, true));
+    assert(mcu->srq_low && probe->srq_low);
+
+    for (s = 0; s < sizeof(starts) / sizeof(starts[0]); ++s) {
+        for (c = 0; c < sizeof(counts) / sizeof(counts[0]); ++c) {
+            fp_mcu_reset(mcu);
+            clear_replies(probe);
+            send(mcu, probe, 0x21, false);
+            send(mcu, probe, (uint8_t)counts[c], false);
+            send(mcu, probe, starts[s], false);
+            for (i = 0; i < counts[c]; ++i) {
+                unsigned address = starts[s] + (unsigned)i;
+                uint8_t value = (uint8_t)(0xA5u + i * 17u);
+                send(mcu, probe, value, false);
+                assert(mcu->stock_xram[address] == value);
+                if (address < FP_MCU_FRAMEBUFFER_BYTES) assert(mcu->framebuffer[address] == value);
+                assert(mcu->last_stock_display_count == i + 1u);
+                if (i + 1u < counts[c]) {
+                    assert(mcu->state == 0 && probe->reply_count == 0);
+                }
+            }
+            assert(mcu->state == 1 && probe->reply_count == 1);
+            assert(probe->replies[0].byte == 1 && !probe->replies[0].ninth_bit);
+        }
+    }
+
+    /* CMMD discards parser state, never the MOVX already performed. */
+    for (c = 0; c < 2; ++c) {
+        fp_mcu_reset(mcu);
+        clear_replies(probe);
+        send(mcu, probe, 0x21, false);
+        send(mcu, probe, c == 0 ? 0 : 2, false);
+        send(mcu, probe, 0x95, false);
+        send(mcu, probe, 0xA5, false);
+        assert(mcu->framebuffer[0x95] == 0xA5 && probe->reply_count == 0);
+        send(mcu, probe, 0x05, true);
+        assert(probe->reply_count == 1 && probe->replies[0].byte == 0);
+        assert(mcu->framebuffer[0x95] == 0xA5 && mcu->stock_xram[0x95] == 0xA5);
+        assert(mcu->last_stock_display_start == 0x95 && mcu->last_stock_display_count == 1);
+    }
+    fp_mcu_reset(mcu);
+    assert(fp_mcu_set_cell(mcu, 0, 0));
+    assert(mcu->framebuffer[0] == 0x3F && mcu->stock_xram[0] == 0x3F);
+    assert(fp_mcu_set_cell(mcu, 599, 1));
+    assert(mcu->framebuffer[149] == 0xFD && mcu->stock_xram[149] == 0xFD);
+}
+
+static void test_diagnostic_counter(fp_mcu_t *mcu, probe_t *probe)
+{
+    static const uint8_t raw[] = {0, 1, 2, 29, 30, 31, 255};
+    size_t i;
+    for (i = 0; i < sizeof(raw) / sizeof(raw[0]); ++i) {
+        fp_mcu_reset(mcu);
+        clear_replies(probe);
+        fp_mcu_tick(mcu, 29); /* Disabled time must not change the phase. */
+        send(mcu, probe, 0x36, false);
+        send(mcu, probe, raw[i], false);
+        assert(mcu->diagnostic_counter == raw[i]);
+        fp_mcu_tick(mcu, 1);
+        if (raw[i] == 0) {
+            assert(mcu->diagnostic_counter == 0 && !mcu->diagnostic_key_traffic);
+        } else if (raw[i] < 30) {
+            assert(mcu->diagnostic_counter == raw[i] + 1u && mcu->fifo_count == 0);
+        } else {
+            assert(mcu->diagnostic_counter == 1 && mcu->fifo_count == 2);
+            assert(mcu->key_fifo[0] == 0x40 && mcu->key_fifo[1] == 0);
+            assert(mcu->diagnostic_key_id == 1);
+        }
+    }
+    fp_mcu_reset(mcu);
+    clear_replies(probe);
+    fp_mcu_tick(mcu, 29);
+    send(mcu, probe, 0x36, false);
+    send(mcu, probe, 1, false);
+    fp_mcu_tick(mcu, 29);
+    assert(mcu->diagnostic_counter == 30 && mcu->fifo_count == 0);
+    fp_mcu_tick(mcu, 1);
+    assert(mcu->diagnostic_counter == 1 && mcu->fifo_count == 2);
+    send(mcu, probe, 0x36, false);
+    send(mcu, probe, 0, false);
+    fp_mcu_tick(mcu, 100);
+    assert(mcu->diagnostic_counter == 0 && mcu->fifo_count == 2);
+    send(mcu, probe, 0x36, false);
+    send(mcu, probe, 1, false);
+    fp_mcu_tick(mcu, 29);
+    assert(mcu->diagnostic_counter == 30 && mcu->fifo_count == 2);
+    fp_mcu_tick(mcu, 31);
+    assert(mcu->fifo_count == 4 && mcu->diagnostic_key_id == 3);
+    assert(mcu->diagnostic_counter == 1); /* Generator advances even if FIFO is full. */
+}
+
 int main(void)
 {
     fp_mcu_t mcu;
@@ -54,6 +168,9 @@ int main(void)
     platform.reply = on_reply;
     platform.set_srq_low = on_srq;
     fp_mcu_init(&mcu, &platform);
+    test_startup_and_display(&mcu, &probe);
+    test_diagnostic_counter(&mcu, &probe);
+    fp_mcu_reset(&mcu);
     assert(fp_mcu_status(&mcu) == 0x01 && fp_mcu_srq_low(&mcu));
 
     clear_replies(&probe);

@@ -70,6 +70,7 @@ typedef struct {
     bool srq_low;
     bool break_detect_enabled;
     bool diagnostic_key_traffic;
+    uint8_t diagnostic_counter; /* raw IRAM 0x43, loaded by command 0x36 */
     uint8_t diagnostic_key_id;
     uint32_t main_loop_count;
     uint8_t last_sound_kind;

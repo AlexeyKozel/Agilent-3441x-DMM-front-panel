@@ -126,8 +126,7 @@ static void notify_sound(fp_mcu_t *mcu, uint8_t kind, uint8_t duration,
 static size_t handle_payload(fp_mcu_t *mcu)
 {
     static const uint8_t ack[] = {0x01};
-    uint8_t count, start, tone, duration;
-    size_t i;
+    uint8_t tone, duration;
     switch (mcu->command) {
     case 0x01: {
         static const uint8_t reply[] = {0x00, 0x09};
@@ -166,26 +165,7 @@ static size_t handle_payload(fp_mcu_t *mcu)
             return complete(mcu, empty, 1, 0x81);
         }
     case 0x21:
-        count = mcu->payload[0];
-        start = mcu->payload[1];
-        if (count == 0) {
-            /* Stock DJNZ turns zero into 256.  The bounded XRAM window is
-             * large enough for every uint8_t start plus that span. */
-            for (i = 0; i < 256u; ++i) {
-                uint16_t address = (uint16_t)start + (uint16_t)i;
-                mcu->stock_xram[address] = mcu->payload[2u + i];
-                if (address < FP_MCU_FRAMEBUFFER_BYTES) {
-                    mcu->framebuffer[address] = mcu->payload[2u + i];
-                }
-            }
-            mcu->last_stock_display_start = start;
-            mcu->last_stock_display_count = 256;
-            return complete(mcu, ack, 1, 0x01);
-        }
-        if ((uint16_t)start + (uint16_t)count > FP_MCU_FRAMEBUFFER_BYTES) {
-            return reject(mcu);
-        }
-        memcpy(&mcu->framebuffer[start], &mcu->payload[2], count);
+        /* Every data byte has already executed its stock MOVX store. */
         return complete(mcu, ack, 1, 0x01);
     case 0x31: {
         const fp_mcu_sound_pair_t *pairs = NULL;
@@ -206,7 +186,8 @@ static size_t handle_payload(fp_mcu_t *mcu)
         mcu->break_detect_enabled = false;
         return complete(mcu, ack, 1, 0x01);
     case 0x36:
-        mcu->diagnostic_key_traffic = mcu->payload[0] != 0;
+        mcu->diagnostic_counter = mcu->payload[0];
+        mcu->diagnostic_key_traffic = mcu->diagnostic_counter != 0;
         return complete(mcu, ack, 1, 0x01);
     case 0x38:
         mcu->irq_enabled = mcu->payload[0] != 0;
@@ -275,7 +256,13 @@ void fp_mcu_reset(fp_mcu_t *mcu)
     platform = mcu->platform;
     memset(mcu, 0, sizeof(*mcu));
     mcu->platform = platform;
+    /* Ordinary application startup (P1.4 high): CODE:04F8 initializer
+     * table runs after the RAM clear; 0EED initializes debounce XDATA. */
+    memset(mcu->framebuffer, 0xFF, sizeof(mcu->framebuffer));
+    memset(mcu->stock_xram, 0xFF, FP_MCU_FRAMEBUFFER_BYTES);
+    memset(&mcu->stock_xram[0x96], 0x82, 20u);
     mcu->state = 0x01;
+    mcu->irq_enabled = true; /* table record at CODE:05B9 sets IRAM36=1 */
     mcu->srq_low = true; /* reset startup path clears P1.6 */
     if (mcu->platform.set_srq_low != NULL) {
         mcu->platform.set_srq_low(mcu->platform.user, true);
@@ -305,6 +292,21 @@ size_t fp_mcu_receive(fp_mcu_t *mcu, uint8_t byte, bool ninth_bit)
         count = byte; /* count byte; zero means 256 data bytes */
         mcu->expected_payload = count == 0 ? 258u : (uint16_t)count + 2u;
     }
+    if (mcu->command == 0x21 && mcu->payload_len == 2) {
+        mcu->last_stock_display_start = byte;
+        mcu->last_stock_display_count = 0;
+    }
+    if (mcu->command == 0x21 && mcu->payload_len > 2) {
+        uint16_t address = (uint16_t)mcu->payload[1] + mcu->payload_len - 3u;
+        /* CODE:067B..067E stores before decrementing the count.  Neither
+         * nonzero counts nor framebuffer-crossing spans have a guard.
+         * The largest reachable address is 0xFF + 255 = 0x01FE. */
+        mcu->stock_xram[address] = byte;
+        if (address < FP_MCU_FRAMEBUFFER_BYTES) {
+            mcu->framebuffer[address] = byte;
+        }
+        mcu->last_stock_display_count = mcu->payload_len - 2u;
+    }
     if (mcu->expected_payload != 0 && mcu->payload_len >= mcu->expected_payload) {
         return handle_payload(mcu);
     }
@@ -327,12 +329,20 @@ void fp_mcu_tick(fp_mcu_t *mcu, uint32_t iterations)
     }
     for (i = 0; i < iterations; ++i) {
         mcu->main_loop_count++;
-        if (mcu->diagnostic_key_traffic && (mcu->main_loop_count % 30u) == 0u) {
-            uint8_t key = (uint8_t)(mcu->diagnostic_key_id % 20u);
-            fp_mcu_enqueue_key(mcu, key, true, false);
-            fp_mcu_enqueue_key(mcu, key, false, false);
-            mcu->diagnostic_key_id = (uint8_t)((mcu->diagnostic_key_id + 1u) % 20u);
+        if (mcu->diagnostic_counter != 0u) {
+            uint8_t previous = mcu->diagnostic_counter;
+            mcu->diagnostic_counter = (uint8_t)(previous + 1u);
+            /* 0A74..0A84 compares the old byte, independent of disabled
+             * iterations; even 0xFF generates a pair and then resets to 1. */
+            if (previous >= 30u) {
+                uint8_t key = (uint8_t)(mcu->diagnostic_key_id % 20u);
+                fp_mcu_enqueue_key(mcu, key, true, false);
+                fp_mcu_enqueue_key(mcu, key, false, false);
+                mcu->diagnostic_key_id = (uint8_t)((mcu->diagnostic_key_id + 1u) % 20u);
+                mcu->diagnostic_counter = 1;
+            }
         }
+        mcu->diagnostic_key_traffic = mcu->diagnostic_counter != 0u;
     }
 }
 
@@ -373,6 +383,7 @@ bool fp_mcu_set_cell(fp_mcu_t *mcu, size_t index, uint8_t value)
     shift = (uint8_t)(6u - 2u * (index & 3u));
     mcu->framebuffer[byte_index] = (uint8_t)((mcu->framebuffer[byte_index] &
         (uint8_t)~(3u << shift)) | (uint8_t)(value << shift));
+    mcu->stock_xram[byte_index] = mcu->framebuffer[byte_index];
     return true;
 }
 

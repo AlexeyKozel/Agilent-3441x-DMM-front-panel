@@ -21,10 +21,12 @@ runtime_startup_0766():
     clear XRAM[0x0000:0x0200]
     SP = 0x4F
     apply compiler_initialization_table()
+    // table at 04F8 fills framebuffer[0:150] with FF and sets IRAM[36] = 1
     P0 = 0x7F; P1 = 0xDF; P2 = 0xF7; P3 = 0x00
     initialize_timer_counter_blocks()
     initialize_vfd_serial_engine()
     initialize_uart_0B84()
+    // normal application path assumes P1.4 high; ROM ISP path is outside this model
     reset_key_state_0EED()       // clears P1.6, fills debounce state with 0x82
     initialize_runtime_subsystems()
     enable_interrupts()
@@ -39,12 +41,13 @@ forever:
     keypad_divider += 1
     if keypad_divider modulo 4 == 0:
         scan_one_keypad_row_0B42()
-    if diagnostic_key_traffic_enabled:
-        diagnostic_counter += 1
-        if diagnostic_counter reaches 30:
+    old_counter = IRAM[0x43]
+    if old_counter != 0:
+        IRAM[0x43] = (old_counter + 1) modulo 256
+        if old_counter >= 30:
             enqueue synthetic press and release for diagnostic_raw_id
             diagnostic_raw_id = (diagnostic_raw_id + 1) modulo 20
-            diagnostic_counter = 0
+            IRAM[0x43] = 1
     empty_hook_103F()
     if sound_sequence_active:
         advance_sound_sequence_0400()
@@ -110,9 +113,11 @@ WRITE_DISPLAY():
     complete([0x01], 0x01)
 ```
 
-The original handler does not perform the stock PPC's 150-byte span check.
-The C emulator bounds the 256-write edge case inside an explicit 512-byte XRAM
-window and rejects unsafe non-stock normal spans.
+The original handler does not perform the stock PPC's 150-byte span check for
+any count. Every received data byte writes XRAM immediately. An incomplete
+stream remains busy, and CMMD resynchronization leaves completed stores intact.
+Both panel models preserve this behavior in an explicit 512-byte XRAM window;
+the PPC host API retains its own display-span validation.
 
 ### Keypad scan, debounce, FIFO, and SRQ — `CODE:0B42`, `0E06`, `0D06`
 
@@ -123,7 +128,9 @@ scan_one_keypad_row_0B42():
     for each column:
         raw_id = row + 5 * column
         state_byte = XRAM[0x0096 + raw_id]
-        update three-sample press/release counter
+        update low press/release counter
+        // from settled release, three pressed samples reach threshold 3
+        // initial 82 has counter 2: the first pressed sample emits startup-held press
         on stable transition:
             event.bit7 = startup-held marker for first startup press
             event.bit6 = pressed
@@ -197,7 +204,8 @@ rom_service_path_0C0A():
 ```
 
 The implementation behind `0xFF03` resides in MCU internal ROM and is not part
-of the included 4162-byte application image.
+of the studied 4162-byte application image. The application image is external
+evidence and is not included in this release tree.
 
 ## Original PPC front-panel procedures
 
@@ -309,15 +317,23 @@ Historical addresses `0x003577A8` and `0x003578F0` are call sites inside
 update_original_panel(image, length):
     enter DOWN mode at 7200 bit/s
     perform reset/break and three-byte 0x55 autobaud
-    read and validate device ID, boot vector, status, and UCFG
+    read device ID and accept only the supported IDs
+    read and report boot vector, status, and UCFG; validate read responses
     enter programming state
-    clear security and erase seven 0x400-byte sectors
+    for sector in 0..6:
+        clear security byte for this sector
+        erase this 0x400-byte sector at address sector * 0x400
     program image in blocks of up to 32 bytes using ASCII HEX records
     restore boot vector, UCFG, and status
-    verify final configuration
+    read and report final boot vector, status, and UCFG; validate read responses
     leave programming mode, reset panel, and restore runtime UART settings
-    abort immediately on generation, echo, response, timeout, or verify error
+    abort the programming chain on generation, echo, response, or timeout error
 ```
+
+The configuration read helpers validate transport, echo, reply length, and
+response syntax. They report the read values without comparing boot vector,
+status, or UCFG against expected configuration values; no semantic read-back
+verification is attributed to this stock path.
 
 Record generation at `Isp8051::genHexRecord 0x00367074` emits
 `:LLAAAATT[DD...]CC` with an uppercase hexadecimal two's-complement checksum.

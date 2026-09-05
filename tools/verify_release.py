@@ -13,20 +13,20 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SUMS = ROOT / "SHA256SUMS.txt"
-FIRMWARE_PATH = Path("firmware/34410A_front_panel_firmware.bin")
 FIRMWARE_LENGTH = 4162
 FIRMWARE_SHA256 = "55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd"
-FORBIDDEN_SUFFIXES = {".elf", ".hex", ".ihex", ".srec", ".s19", ".pdf", ".zip", ".7z", ".rar", ".gz", ".xz", ".img", ".dump", ".dmp", ".log", ".gpr", ".gzf"}
+FORBIDDEN_SUFFIXES = {".bin", ".elf", ".hex", ".ihex", ".srec", ".s19", ".pdf", ".zip", ".7z", ".rar", ".gz", ".xz", ".img", ".dump", ".dmp", ".log", ".gpr", ".gzf"}
 FORBIDDEN_PARTS = {"__pycache__", ".pytest_cache", ".git"}
 CYRILLIC = re.compile(r"[\u0400-\u04ff]")
 REQUIRED = {
-    "README.md", "LICENSE", "NOTICE.md",
+    ".gitattributes", "README.md", "LICENSE", "NOTICE.md", "CHANGELOG.md",
     "RELEASE_CHECKLIST.md", "release_manifest.json",
     "docs/PROTOCOL.md", "docs/PHYSICAL_INTERFACE.md",
     "docs/ORIGINAL_FIRMWARE_UPDATE.md", "docs/ORIGINAL_MCU_INTERNALS.md",
     "docs/PROVENANCE.md", "docs/OPEN_QUESTIONS.md",
     "docs/ORIGINAL_PROCEDURE_PSEUDOCODE.md",
-    "firmware/34410A_front_panel_firmware.bin",
+    "docs/FIRMWARE_ORACLE.md", "tools/firmware_oracle.py",
+    "tools/verify_release.py", "tests/test_firmware_oracle.py", "tests/test_release_verifier.py",
     "emulators/__init__.py",
     "emulators/front_panel_python/README.md", "emulators/front_panel_python/__init__.py",
     "emulators/front_panel_python/model.py", "emulators/front_panel_python/fixtures/traces.json",
@@ -71,53 +71,35 @@ def expected_sums() -> str:
     return "".join(f"{digest(ROOT / rel)}  {rel.as_posix()}\n" for rel in relative_files())
 
 
-def validate_firmware(errors: list[str]) -> None:
-    binaries = [rel for rel in relative_files() if rel.suffix.lower() == ".bin"]
-    if binaries != [FIRMWARE_PATH]:
-        errors.append("the package must contain exactly the approved original-panel binary")
-        return
-    path = ROOT / FIRMWARE_PATH
-    image = path.read_bytes()
-    if len(image) != FIRMWARE_LENGTH:
-        errors.append("included original-panel firmware length is incorrect")
-    if hashlib.sha256(image).hexdigest() != FIRMWARE_SHA256:
-        errors.append("included original-panel firmware SHA-256 is incorrect")
-    if image[0x1000:0x100E].hex() != "000960001e010000000000000000":
-        errors.append("included original-panel firmware metadata is incorrect")
-    if image.count(b"\x12\xff\x03") != 2:
-        errors.append("included original-panel firmware ROM-call inventory is incorrect")
-
-
 def validate_english_only(errors: list[str]) -> None:
     for rel in relative_files():
-        if rel == FIRMWARE_PATH:
-            continue
         try:
-            text = (ROOT / rel).read_text(encoding="utf-8")
+            raw = (ROOT / rel).read_bytes()
+            text = raw.decode("utf-8")
         except UnicodeDecodeError:
             errors.append(f"unexpected non-UTF-8 public file: {rel.as_posix()}")
             continue
         if CYRILLIC.search(text):
             errors.append(f"Cyrillic text is not allowed in the public package: {rel.as_posix()}")
+        if b"\r" in raw:
+            errors.append(f"public text must use canonical LF endings: {rel.as_posix()}")
 
 
 def validate_semantics(errors: list[str]) -> None:
     manifest = json.loads((ROOT / "release_manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("release") != "1.2.0":
-        errors.append("manifest release must be 1.2.0")
+    if manifest.get("schema") != "3441x-front-panel-public-release-v2":
+        errors.append("manifest schema must be v2 (external firmware evidence)")
+    if manifest.get("release") != "1.2.1":
+        errors.append("manifest release must be 1.2.1")
     if manifest.get("publication_status") != "PUBLIC_RELEASE":
         errors.append("manifest must be PUBLIC_RELEASE after owner approval")
-    if manifest.get("redistributed_proprietary_artifacts") is not True:
-        errors.append("manifest must disclose redistribution of the included firmware")
-    included = manifest.get("included_firmware", {})
-    if included.get("path") != FIRMWARE_PATH.as_posix():
-        errors.append("manifest firmware path is incorrect")
-    if included.get("length") != FIRMWARE_LENGTH:
-        errors.append("manifest firmware length is incorrect")
-    if included.get("sha256") != FIRMWARE_SHA256:
-        errors.append("manifest firmware SHA-256 is incorrect")
-    if included.get("publication_basis") != "project_owner_explicitly_authorized_inclusion_and_confirmed_licensing":
-        errors.append("manifest firmware publication basis is missing")
+    if manifest.get("redistributed_proprietary_artifacts") is not False or "included_firmware" in manifest:
+        errors.append("this release must not redistribute original firmware")
+    external = manifest.get("external_firmware", {})
+    if external.get("length") != FIRMWARE_LENGTH or external.get("sha256") != FIRMWARE_SHA256:
+        errors.append("external firmware evidence identity is incorrect")
+    if external.get("redistributed") is not False:
+        errors.append("external firmware must be marked as not redistributed")
 
     scope = manifest.get("scope", {})
     if scope.get("front_panel_python_emulator") != "OFFLINE_REFERENCE_MODEL_VALIDATED_NOT_HARDWARE_TESTED":
@@ -126,6 +108,13 @@ def validate_semantics(errors: list[str]) -> None:
         errors.append("front-panel emulator evidence boundary is incorrect")
     if scope.get("ppc_host_emulator") != "OFFLINE_MODEL_VALIDATED_NOT_HARDWARE_TESTED":
         errors.append("PPC emulator evidence boundary is incorrect")
+    for key in ("physical_mcu_package_pinout", "bench_electrical_validation", "bench_update_execution"):
+        if scope.get(key) != "OPEN":
+            errors.append(f"unverified physical/bench evidence must remain OPEN: {key}")
+    if scope.get("runtime_protocol") != "DIRECT_STATIC_CLOSED":
+        errors.append("runtime protocol scope is inconsistent")
+    if scope.get("firmware_oracle") != "BOUNDED_EXTERNAL_FIRMWARE_REPLAY_NOT_HARDWARE_TESTED":
+        errors.append("firmware oracle evidence boundary is incorrect")
     for rel in (
         "README.md",
         "emulators/front_panel_python/README.md",
@@ -160,6 +149,8 @@ def validate_semantics(errors: list[str]) -> None:
         errors.append("unexpected original-panel image identity/revision")
     if image.get("sha256") != FIRMWARE_SHA256:
         errors.append("unexpected original-panel image hash")
+    if image.get("redistributed") is not False:
+        errors.append("update metadata must agree that firmware is not redistributed")
     embeddings = update.get("ppc_embeddings", [])
     if len(embeddings) != 2 or not all(row.get("slice_identical") is True for row in embeddings):
         errors.append("both PPC embeddings must be present and byte-identical")
@@ -197,6 +188,13 @@ def validate_semantics(errors: list[str]) -> None:
     traces = json.loads((ROOT / "derived/original_mcu_trace_results.json").read_text(encoding="utf-8"))
     if {row.get("name") for row in traces} != {"startup", "command_21_count_zero", "reply_tb8"}:
         errors.append("original MCU closure-trace inventory is incomplete")
+    for row in traces:
+        if not row.get("events") or not row.get("conclusion"):
+            errors.append(f"closure trace is empty: {row.get('name')}")
+    provenance = (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8")
+    for rel in ("derived/front_panel_protocol_extract.json", "derived/original_mcu_trace_results.json"):
+        if digest(ROOT / rel) not in provenance:
+            errors.append(f"current public artifact hash is missing from provenance: {rel}")
 
     with (ROOT / "data/commands.csv").open(encoding="utf-8", newline="") as stream:
         commands = list(csv.DictReader(stream))
@@ -228,23 +226,23 @@ def main() -> int:
     for rel in relative_files():
         if rel.suffix.lower() in FORBIDDEN_SUFFIXES:
             errors.append(f"forbidden artifact: {rel.as_posix()}")
-    validate_firmware(errors)
     validate_english_only(errors)
     try:
         validate_semantics(errors)
-    except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         errors.append(f"semantic validation failed: {exc}")
     wanted = expected_sums()
-    if args.write_sums:
-        SUMS.write_text(wanted, encoding="utf-8", newline="\n")
-    elif not SUMS.exists():
-        errors.append("SHA256SUMS.txt is missing")
-    elif SUMS.read_text(encoding="utf-8") != wanted:
-        errors.append("SHA256SUMS.txt does not match package contents")
+    if not args.write_sums:
+        if not SUMS.exists():
+            errors.append("SHA256SUMS.txt is missing")
+        elif SUMS.read_bytes() != wanted.encode("utf-8"):
+            errors.append("SHA256SUMS.txt does not match package contents")
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
+    if args.write_sums:
+        SUMS.write_text(wanted, encoding="utf-8", newline="\n")
     print(f"OK: {len(relative_files())} files; English-only public release is internally consistent")
     return 0
 

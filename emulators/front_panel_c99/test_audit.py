@@ -1,8 +1,8 @@
 """Deterministic contract and safety-boundary checks for the C99 core.
 
 These checks do not replace sanitizer or target-ABI validation. They inspect
-source and independent Python-model boundary cases; test_differential.py
-performs executable differential checks.
+source and Python-model boundary cases; test_differential.py performs executable
+C regressions, state comparisons, and optional independent firmware checks.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ class SourceSafetyTests(unittest.TestCase):
 
     def test_zero_count_path_uses_bounded_16_bit_address(self):
         self.assertIn("mcu->expected_payload = count == 0 ? 258u", self.source)
-        self.assertIn("uint16_t address = (uint16_t)start + (uint16_t)i", self.source)
+        self.assertIn("uint16_t address = (uint16_t)mcu->payload[1]", self.source)
         self.assertIn("mcu->stock_xram[address]", self.source)
         self.assertIn("if (address < FP_MCU_FRAMEBUFFER_BYTES)", self.source)
 
@@ -82,7 +82,7 @@ class DeterministicModelBoundaryTests(unittest.TestCase):
         self.assertTrue(panel.srq_low)
         for event in range(4):
             self.assertTrue(panel.enqueue_event(event))
-        self.assertFalse(panel.irq_enabled)
+        self.assertTrue(panel.irq_enabled)
         self.assertEqual(panel.fifo_occupancy, 4)
         self.assertEqual(panel.receive(0x38), ())
         self.assertEqual(panel.receive(0x01), (0x01,))

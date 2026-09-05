@@ -5,21 +5,24 @@
       "0000: LJMP 0766",
       "0766: clears IRAM; 076c: clears XRAM",
       "077d: LJMP 07bb; table terminal at 0780: LJMP 0a3b",
+      "compiler table 04f8: record 0500 initializes 150 framebuffer bytes to FF",
+      "compiler table record 05b9 initializes software key IRQ gate IRAM36 to 01",
       "0a3b: calls ... 0cdd, 0eed, 005e, 0f84 in this order",
-      "0eed: CLR bit 96 (P1.6) before entering the main loop"
+      "normal application path assumes P1.4 high; internal ROM branch is outside this trace",
+      "0eed: CLR bit 96 (P1.6); debounce XRAM0096..00a9 receives 82 without overwriting framebuffer"
     ],
-    "conclusion": "After reset initialization, P1.6 is low; the IRQ-enable state is independent."
+    "conclusion": "Normal application reset initializes the framebuffer to FF repeated 150 times and software IRQ gate to 1; P1.6 is low. This corrected summary is distinct from the historical local closure output."
   },
   {
     "name": "command_21_count_zero",
     "events": [
-      "count byte 00: status byte 3c becomes 00 (busy), no reply",
-      "next byte: count byte 39 is latched as 00",
-      "next byte: low XRAM start address is latched",
+      "command byte 21: status byte 3c becomes 00 (busy), no reply",
+      "count byte 00: count byte 39 is latched as 00",
+      "start byte: low XRAM start address is latched",
       "each following byte: MOVX @DPTR,A; DJNZ 39,0692",
       "DJNZ from 00 takes 256 store iterations; final fall-through sends SBUF=01 and state=01"
     ],
-    "conclusion": "Stock 0x21,count=0 is a 256-byte XRAM write, not a reject; a truncated stream stays busy."
+    "conclusion": "Original MCU 0x21,count=0 performs 256 immediate XRAM stores without a framebuffer bounds check; this packet is outside stock PPC-generated display spans. A truncated stream stays busy and CMMD resynchronization preserves stores already executed."
   },
   {
     "name": "reply_tb8",

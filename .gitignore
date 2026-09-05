@@ -2,3 +2,5 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 
+# Original firmware is supplied externally and must not be published.
+*.bin

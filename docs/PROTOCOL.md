@@ -1,6 +1,6 @@
 # Agilent 34410A/34411A Original Front-Panel Runtime Protocol
 
-Specification version: `1.2.0`, 2026-09-03.
+Specification version: `1.2.1`, 2026-09-05.
 
 ## 1. Scope and evidence status
 
@@ -19,7 +19,7 @@ The J1102 pinout and assignment of the logic circuits to `+3.3V_ER` are schemati
 | Checksum, escaping, delimiter | None |
 | Multi-byte revision | Big-endian |
 
-The stock PPC normally sends a complete packet in DATA mode. This is valid while the parser is idle/completed. Any input byte with the ninth bit set immediately abandons an incomplete payload or echo stream and begins a new command. The stock recovery operation sends `0x05` in CMMD mode.
+The stock PPC normally sends a complete packet in DATA mode. This is valid while the parser is idle/completed. Any input byte with the ninth bit set immediately abandons the remaining incomplete payload or echo stream and begins a new command. It does not undo display bytes already stored by the ISR. The stock recovery operation sends `0x05` in CMMD mode.
 
 | Driver mode | ioctl | Purpose |
 |---|---:|---|
@@ -61,12 +61,12 @@ The dispatcher has 64 entries for `0x00..0x3F`; values `>=0x40` reject immediate
 | `13` | BEEP | none | `01` | `01` | `0F2F` |
 | `14` | CLICK | none | `01` | `01` | `0FAE` |
 | `15` | DEQUEUE_KEY_EVENT | none | event or `FF` | `01`/`81` | `0F93` |
-| `21` | WRITE_DISPLAY | count, start, data[count] | `01` | `01` | ISR inline |
+| `21` | WRITE_DISPLAY | count, start, data[count or 256 if zero] | `01` after final data byte | `01` | ISR inline |
 | `31` | PLAY_SOUND_SEQUENCE | sequence | `01` | `01` | `0E5D` |
 | `32` | ENABLE_BREAK_DETECT | none | `01` | `01` | `0F66` |
 | `33` | DISABLE_BREAK_DETECT | none | `01` | `01` | `0FBA` |
 | `34` | PROTOCOL_ECHO | stream | every stream byte | `00` | `0EA9` |
-| `36` | DIAGNOSTIC_KEY_TRAFFIC | enable | `01` | `01` | `0E77` |
+| `36` | DIAGNOSTIC_KEY_TRAFFIC | raw counter byte | `01` | `01` | `0E77` |
 | `38` | SET_KEY_IRQ_ENABLE | enable | `01` | `01` | `0DC9` |
 | `3A` | FLUSH_KEY_FIFO | none | `01` | `01` | `0FC6` |
 
@@ -98,7 +98,9 @@ A non-empty FIFO returns one event byte and state `01`. An empty FIFO returns `F
 
 The stock PPC permits `0<=start<=0x95`, `count>=1`, and `start+count-1<=0x95`. A full refresh is `21 96 00` followed by 150 bytes. Normal redraws send the smallest continuous dirty span.
 
-The 8051 does not bounds-check the framebuffer. With `count=0`, the original `DJNZ` behavior produces exactly 256 XRAM writes before completion. This is documented original behavior outside stock PPC-generated packets.
+The 8051 does not bounds-check the framebuffer for any count. Each data byte immediately performs one XRAM write; an incomplete stream remains busy and receives no completion ACK. CMMD resynchronization discards the remaining payload but preserves writes already performed. Thus `21 02 00 AA`, followed by CMMD `105`, leaves XRAM[0] equal to `AA`.
+
+With `count=0`, the original `DJNZ` behavior produces exactly 256 XRAM writes before completion. Nonzero spans may also cross the framebuffer boundary: `21 02 95 AA BB` stores `AA` at `0095` and `BB` at `0096`, then replies `01`. Such writes can alter adjacent debounce state. These cases are outside stock PPC-generated display packets; the PPC host emulator retains its display-span validation.
 
 ### `0x31 PLAY_SOUND_SEQUENCE`
 
@@ -114,7 +116,7 @@ The parser remains in state `0x00`; there is no initial ACK. Each following DATA
 
 ### `0x36 DIAGNOSTIC_KEY_TRAFFIC`
 
-`36 enable`; nonzero enables synthetic press/release pairs for raw IDs 0..19 after approximately 30 main-loop iterations. That interval is not a physical time unit. Reply is `01`.
+`36 counter` copies the raw payload byte to `IRAM:43` and replies `01`. Zero disables diagnostic traffic. On each main-loop iteration with a nonzero counter, the firmware increments it modulo 256 and tests its previous value: if the previous value was at least 30, it generates the next synthetic press/release pair for raw IDs 0..19 and resets the counter to 1. Payload `01` therefore generates its first pair on the 30th subsequent loop; payload `1E` or larger generates a pair on the next loop. This counter is independent of elapsed disabled loops. Loop counts are not physical time units.
 
 ### `0x38 SET_KEY_IRQ_ENABLE` and `0x3A FLUSH_KEY_FIFO`
 
@@ -122,7 +124,7 @@ The parser remains in state `0x00`; there is no initial ACK. Each following DATA
 
 ## 6. Display
 
-The framebuffer is 150 bytes containing 600 two-bit cells:
+The framebuffer is 150 bytes containing 600 two-bit cells. After normal application startup with P1.4 high, the compiler initialization table fills it with `FF` repeated 150 times. The same table initializes the software key IRQ gate (`IRAM:36`) to 1. This does not determine analog VFD brightness or change the measured-hardware boundary.
 
 ```text
 byte_index = n >> 2
@@ -160,7 +162,7 @@ segment = 0..16
 
 ## 7. Keypad
 
-Five active-low rows are `P2.0,P2.1,P2.4,P2.6,P2.7`; four active-low columns are `P0.0..P0.3`. `raw_id=row+5*column`. Three consecutive pressed samples create a press event; three released samples create a release event. Auto-repeat is performed by the PPC, not the panel.
+Five active-low rows are `P2.0,P2.1,P2.4,P2.6,P2.7`; four active-low columns are `P0.0..P0.3`. `raw_id=row+5*column`. From a settled released state, three consecutive pressed samples create a press event; three released samples from a pressed state create a release event. Startup initializes each debounce byte to `82`, whose low counter is already 2, so a key held on its first scan creates a startup-held press event after one pressed sample. Auto-repeat is performed by the PPC, not the panel.
 
 The FIFO holds four events and drops a new event when full:
 
@@ -194,4 +196,4 @@ Raw IDs `0E`, `12`, and `13` do not produce PPC events. Raw `3F` is a special sy
 
 ## 8. Reproducibility
 
-The offline tests cover all implemented and rejected opcodes, resynchronization, echo, status transitions, display boundaries and two-bit cells, the original zero-count edge case, key mapping/FIFO/SRQ behavior, sound bounds, annunciators, and deterministic traces. Machine-readable command, key, annunciator, pinout, and extracted firmware tables are authoritative companions to this document.
+The offline tests cover all implemented and rejected opcodes, resynchronization, echo, status transitions, incremental XRAM writes, PPC display-span bounds, two-bit cells, the zero-count edge case, key mapping/FIFO/SRQ behavior, sound bounds, annunciators, and deterministic traces. [FIRMWARE_ORACLE.md](FIRMWARE_ORACLE.md) describes the independent bounded firmware checks and their execution limits. Machine-readable command, key, annunciator, pinout, and extracted firmware tables are companions to this document.

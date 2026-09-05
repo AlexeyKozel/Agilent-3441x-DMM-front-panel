@@ -9,7 +9,9 @@
     "metadata_hex": "000960001e010000000000000000",
     "revision_offset": "0x1000..0x1001",
     "revision": "0x0009",
-    "redistributed": false
+    "redistributed": false,
+    "availability": "external_explicit_input",
+    "oracle_environment_variable": "FP_ORIGINAL_FIRMWARE"
   },
   "ppc_embeddings": [
     {"model":"34410A","app_sha256":"9d05d676bf87d5109f75150935d6a95d8422ce4ceec2e768f5538caba9d02c6b","file_offset":"0x007A3EDF","mapped_address":"0x007B3EDF","slice_identical":true},

@@ -1,12 +1,12 @@
 # Original Front-Panel 8051 MCU Internals
 
-Specification version: `1.2.0`, 2026-09-03.
+Specification version: `1.2.1`, 2026-09-05.
 
 ## 1. Purpose and evidence boundary
 
 This document describes the original Agilent 34410A/34411A front-panel 8051 firmware: startup, memory, cooperative main loop, UART parser, VFD refresh, keypad, FIFO/SRQ, sound, and calls into the MCU ROM ISP service. It complements `PROTOCOL.md` and `ORIGINAL_FIRMWARE_UPDATE.md`.
 
-The exact basis is the included 4162-byte image with SHA-256 `55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd`. The literal listing covers `CODE:0000..1041`; 71 functions were recovered. Decompiler output was navigation aid only; literal opcodes and deterministic traces take precedence.
+The exact basis is the studied 4162-byte image with SHA-256 `55779328f8d9de6675ac3a145f846cfc3f86aaa346136698ef4df31edc15c4dd`. This image is external evidence and is not included in the release tree. The local literal listing covers `CODE:0000..1041`; 71 functions were recovered. Decompiler output was navigation aid only; literal opcodes and deterministic traces take precedence.
 
 The host class name `Isp8051lpc932` and accepted PPC device IDs `0xDD05`/`0xDD1F` bind the stock update path to the LPC932 family. The package marking and physical package pinout of the installed device remain unconfirmed.
 
@@ -38,12 +38,12 @@ The host class name `Isp8051lpc932` and accepted PPC device IDs `0xDD05`/`0xDD1F
 The startup trace is `0000 -> 0766 -> 07BB -> 0A3B`. Startup:
 
 1. clears internal RAM and the first 512 bytes of XRAM;
-2. sets `SP=0x4F` and processes the compiler initialization table;
+2. sets `SP=0x4F` and processes the compiler initialization table at `CODE:04F8`, including `FF` in all 150 framebuffer bytes and `IRAM:36=1` for the software key IRQ gate;
 3. initializes ports/SFRs (`P0=0x7F`, `P1=0xDF`, `P2=0xF7`, `P3=0x00`), timer/counter blocks, VFD serial interface, and UART;
 4. calls `0CDD`, `0EED`, `005E`, and `0F84`;
 5. enables interrupts and enters the infinite cooperative loop.
 
-`0EED` first executes `CLR P1.6`, fills the 20 debounce bytes at `XRAM:0096..00A9` with `0x82`, and clears the current key index. Thus, after reset initialization, `FP_SRQ*` is low regardless of the software key-IRQ gate. This is a digital-code conclusion; electrical interpretation remains bounded by `PHYSICAL_INTERFACE.md`.
+For normal application startup, P1.4 is assumed high. `0EED` first executes `CLR P1.6`, fills the separate 20 debounce bytes at `XRAM:0096..00A9` with `0x82`, and clears the current key index. The framebuffer remains `FF` repeated 150 times and the software key IRQ gate remains 1. Thus `FP_SRQ*` is low after initialization; that initial pin state does not imply a disabled IRQ gate. This is a digital-code conclusion; electrical interpretation remains bounded by `PHYSICAL_INTERFACE.md`.
 
 A particular startup state on `P1.4` enters `0C0A`, which performs two `LCALL 0xFF03` operations with the argument sets documented in the update document. Internal ROM bytes at `0xFF03` are not present in this application image.
 
@@ -53,7 +53,7 @@ Every iteration:
 
 1. calls display-refresh step `0A93`;
 2. every fourth pass calls `0B42` to scan one of five key rows;
-3. when diagnostic traffic is enabled, generates the next synthetic press/release pair for raw ID 0..19 after 30 passes;
+3. if raw diagnostic counter `IRAM:43` is nonzero, increments it modulo 256; when its previous value was at least 30, generates the next synthetic press/release pair for raw ID 0..19 and sets the counter to 1;
 4. calls empty hook `103F`;
 5. advances active sound sequence worker `0400`.
 
@@ -91,7 +91,7 @@ Consequently, `RB8=1` performs immediate CMMD resynchronization from incomplete 
 
 Most handlers use a small state machine in `IRAM:38`: entry sets `IRAM:3C` to busy `0x00`, later invocations consume payload, and completion transmits ACK `0x01` through `SBUF` and sets state `0x01`. Reject paths transmit and store `0x81`. `GET_STATUS` transmits the old state and then resets it to `0x01`.
 
-`WRITE_DISPLAY 0x21` is implemented inline in the ISR. After `count,start`, each byte is stored by `MOVX @DPTR,A`. With `count=0`, `DJNZ` causes exactly 256 writes before the parser completes. Exact-opcode replay confirms this edge case.
+`WRITE_DISPLAY 0x21` is implemented inline in the ISR. After `count,start`, each byte is immediately stored by `MOVX @DPTR,A`, without a framebuffer bounds check for any count. With `count=0`, `DJNZ` causes exactly 256 writes before the parser completes. An incomplete stream stays busy; CMMD resynchronization preserves the writes already executed. Nonzero out-of-framebuffer spans also write adjacent XRAM and complete normally. The stock PPC performs its own display-span check.
 
 ## 7. VFD/display engine
 
@@ -103,7 +103,7 @@ This closes the digital origin of every cell and the multiplex-refresh mechanism
 
 `0B42` activates one of five active-low rows `P2.0,P2.1,P2.4,P2.6,P2.7` and reads active-low columns `P0.0..P0.3`. Raw ID is `row + 5*column`.
 
-Each raw ID uses `XRAM:0096+id`. Three consecutive pressed samples raise the low counter to 3, set pressed flag bit 6, and emit a press event. Three released samples reduce the counter to zero, clear the flag, and emit a release event. Reset value `0x82` includes startup marker bit 7, retained only for the first detected startup-held key.
+Each raw ID uses `XRAM:0096+id`. From a settled released state, three consecutive pressed samples raise the low counter to 3, set pressed flag bit 6, and emit a press event. Three released samples from a pressed state reduce the counter to zero, clear the flag, and emit a release event. Reset value `0x82` includes startup marker bit 7 and a low counter of 2: a key pressed on its first scan reaches 3 and emits a startup-held press event after one sample. The marker is cleared as the initial key state is resolved.
 
 An event byte contains startup-held in bit 7, press/release in bit 6, and raw ID in bits 5:0. `0E06` enqueues into `IRAM:30..33`; a fifth event is dropped. With the gate enabled, a non-empty queue drives `P1.6` low. `0D06` returns a FIFO byte or `0xFF`; removing the final event drives `P1.6` high. `1029` flushes the queue and also drives `P1.6` high.
 
@@ -118,14 +118,14 @@ The image contains 85 exact tone-reload pairs and five sequences of 13, 8, 24, 3
 - `0x32` enables break-detect UART/FIE configuration;
 - `0x33` disables the corresponding enable bit;
 - `0x34` stays in state `0x00` and returns every DATA byte;
-- `0x36` controls the synthetic key generator;
+- `0x36` copies its raw payload to diagnostic counter `IRAM:43`; zero disables generation, while values at least 30 trigger on the next main-loop iteration;
 - `0x38` controls the key IRQ gate and immediately recomputes `P1.6`;
 - `0x3A` synchronizes FIFO counters and releases SRQ;
 - no confirmed logical binding of `PWR_FAIL*` to an 8051 port bit was found in the scoped image.
 
 ## 11. Published verification material
 
-The repository contains the exact application image, complete command/tone/sound/display/key extract, closure traces for reset, `0x21/count=0`, and reply TB8, the architecture map, all 71 recovered function entries, and a deterministic offline reference model with tests. A full disassembly and decompiler database are not included.
+The repository contains the command/tone/sound/display/key extract, corrected closure summaries for reset, `0x21/count=0`, and reply TB8, the architecture map, all 71 recovered function entries, and offline models with tests. The independent [bounded firmware oracle](FIRMWARE_ORACLE.md) executes selected paths from an explicitly supplied external image after checking its identity; it is not a complete MCU/peripheral emulator. Firmware binaries, full disassembly, and decompiler databases are not included in this release tree.
 
 ## 12. Open boundaries
 

@@ -148,13 +148,15 @@ class PanelModel:
         self.reset()
 
     def reset(self) -> None:
-        self.framebuffer = bytearray(FRAMEBUFFER_BYTES)
-        # The zero-count 0x21 stock path addresses XRAM rather than the
-        # 150-byte framebuffer.  The 256 writes starting at an 8-bit address
-        # occupy 0x0000..0x01fe, so this bounded window preserves the directly
-        # observable effect without pretending that it is a valid framebuffer
-        # command.
+        # The table-driven initializer runs after RAM clear: CODE:0500
+        # fills XRAM:0000..0095 with FF and CODE:05B9 enables key IRQ.
+        self.framebuffer = bytearray([0xFF]) * FRAMEBUFFER_BYTES
+        # Every 0x21 write targets XRAM directly, including spans outside
+        # the framebuffer. The largest start/count reaches address 0x01fe.
         self.stock_xram = bytearray(0x200)
+        self.stock_xram[:FRAMEBUFFER_BYTES] = self.framebuffer
+        # The later startup routine at CODE:0EED initializes keypad state.
+        self.stock_xram[0x96:0xAA] = bytes([0x82]) * 20
         self.key_fifo: list[int] = []
         self.state = 0x01
         self.command: int | None = None
@@ -162,12 +164,12 @@ class PanelModel:
         self.expected_payload: int | None = None
         self._status_previous = 0x01
         self.echo_mode = False
-        self.irq_enabled = False
-        # Reset startup calls 0x0EED, which explicitly clears P1.6 while the
-        # key-IRQ gate is still disabled.
+        self.irq_enabled = True
+        # Reset startup calls 0x0EED, which explicitly clears P1.6.
         self.srq_low = True
         self.break_detect_enabled = False
         self.diagnostic_key_traffic = False
+        self.diagnostic_counter = 0
         self.diagnostic_key_id = 0
         self.main_loop_count = 0
         self.last_sound: dict[str, object] | None = None
@@ -211,12 +213,19 @@ class PanelModel:
         emitted: list[int] = []
         for _ in range(iterations):
             self.main_loop_count += 1
-            if self.diagnostic_key_traffic and self.main_loop_count % 30 == 0:
+            previous = self.diagnostic_counter
+            if previous == 0:
+                continue
+            # CODE:0A74..0A84 compares the old IRAM:43 value, then resets
+            # it to 1 after an event pair. Disabled passes do not count.
+            self.diagnostic_counter = (previous + 1) & 0xFF
+            if previous >= 30:
                 key = self.diagnostic_key_id % 20
                 for event in (encode_key_event(key, True), encode_key_event(key, False)):
                     if self.enqueue_event(event):
                         emitted.append(event)
                 self.diagnostic_key_id = (self.diagnostic_key_id + 1) % 20
+                self.diagnostic_counter = 1
         return tuple(emitted)
 
     def cell(self, index: int) -> int:
@@ -232,6 +241,7 @@ class PanelModel:
         self.framebuffer[byte_index] = (
             self.framebuffer[byte_index] & ~(0x03 << shift)
         ) | (value << shift)
+        self.stock_xram[byte_index] = self.framebuffer[byte_index]
 
     def write_display(self, start: int, data: Iterable[int]) -> None:
         values = bytes(data)
@@ -240,6 +250,7 @@ class PanelModel:
         if start + len(values) > FRAMEBUFFER_BYTES:
             raise ValueError("display write exceeds 150-byte framebuffer")
         self.framebuffer[start:start + len(values)] = values
+        self.stock_xram[start:start + len(values)] = values
 
     def annunciator_cell(self, name: str) -> int:
         try:
@@ -315,23 +326,7 @@ class PanelModel:
             self.srq_low = False
             return self._complete((0xFF,), 0x81)
         if command == 0x21:
-            count, start = payload[0], payload[1]
-            data = payload[2:]
-            if count == 0:
-                # The exact ISR has no zero-count guard: DJNZ 0x39 executes
-                # 256 stores when the latched count is 0x00.  This deliberately
-                # retains the stock XRAM effect instead of manufacturing a
-                # safe rejection semantic for MCU conformance.
-                for offset, value in enumerate(data):
-                    address = start + offset
-                    self.stock_xram[address] = value
-                    if address < FRAMEBUFFER_BYTES:
-                        self.framebuffer[address] = value
-                self.last_stock_display_write = (start, len(data))
-                return self._complete((0x01,))
-            if start >= FRAMEBUFFER_BYTES or start + count > FRAMEBUFFER_BYTES:
-                return self._reject()
-            self.framebuffer[start:start + count] = data
+            # Data bytes have already been stored by the receive path.
             return self._complete((0x01,))
         if command == 0x31:
             sequence_id = payload[0]
@@ -344,7 +339,9 @@ class PanelModel:
             self.break_detect_enabled = False
             return self._complete((0x01,))
         if command == 0x36:
-            self.diagnostic_key_traffic = payload[0] != 0
+            # CODE:0E85 stores the raw payload byte in IRAM:43.
+            self.diagnostic_counter = payload[0]
+            self.diagnostic_key_traffic = self.diagnostic_counter != 0
             return self._complete((0x01,))
         if command == 0x38:
             self.irq_enabled = payload[0] != 0
@@ -367,14 +364,23 @@ class PanelModel:
         if self.command is None:
             return tuple(self._start_command(byte))
         self.payload.append(byte)
-        if self.command == 0x21 and len(self.payload) == 1:
-            count = self.payload[0]
-            if count == 0:
-                # 8051 DJNZ decrements zero to 0xff, therefore the special
-                # inline handler consumes 256 data bytes after count/start.
-                self.expected_payload = 0x100 + 2
+        if self.command == 0x21:
+            if len(self.payload) == 1:
+                # DJNZ decrements zero to FF, so count=0 consumes 256 bytes.
+                self.expected_payload = (self.payload[0] or 0x100) + 2
+            elif len(self.payload) == 2:
+                self.last_stock_display_write = (self.payload[1], 0)
             else:
-                self.expected_payload = count + 2
+                start = self.payload[1]
+                offset = len(self.payload) - 3
+                address = start + offset
+                # CODE:067D executes MOVX for every received data byte,
+                # before DJNZ decides whether to acknowledge completion.
+                # A later CMMD abandons parsing, never these prior stores.
+                self.stock_xram[address] = byte
+                if address < FRAMEBUFFER_BYTES:
+                    self.framebuffer[address] = byte
+                self.last_stock_display_write = (start, offset + 1)
         if self.expected_payload is not None and len(self.payload) >= self.expected_payload:
             return tuple(self._handle_payload())
         return ()
